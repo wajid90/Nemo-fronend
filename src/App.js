@@ -1,25 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import { ColorModeContext, useMode } from "./theme";
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import { Routes, Route } from "react-router-dom";
+import { MyProSidebarProvider } from "./pages/global/sidebar/sidebarContext";
 
-function App() {
+import Topbar from "./pages/global/Topbar.jsx";
+import Dashboard from "./pages/dashboard/index.tsx";
+import Invoices from "./pages/objects/index.jsx";
+import Form from "./pages/form/index.jsx";
+
+const App = () => {
+  const [theme, colorMode] = useMode();
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ColorModeContext.Provider value={colorMode}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <MyProSidebarProvider>
+          <div style={{ height: "100%", width: "100%" }}>
+            <main>
+              <Topbar />
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/objects" element={<Invoices />} />
+                <Route path="/form" element={<Form />} /> 
+              </Routes>
+            </main>
+          </div>
+        </MyProSidebarProvider>
+      </ThemeProvider>
+    </ColorModeContext.Provider>
   );
-}
+};
+
+
+
 
 export default App;
