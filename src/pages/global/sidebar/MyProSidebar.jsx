@@ -18,6 +18,9 @@ import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import SwitchRightOutlinedIcon from "@mui/icons-material/SwitchRightOutlined";
 import SwitchLeftOutlinedIcon from "@mui/icons-material/SwitchLeftOutlined";
+import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
+import DataObjectIcon from '@mui/icons-material/DataObject';
+
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -134,30 +137,22 @@ const MyProSidebar = () => {
               color={colors.grey[300]}
               sx={{ m: "15px 20px 5px 20px" }}
             >
-              Data
+              Objects
             </Typography>
-            <Item
-              title="Manage Team"
-              to="/team"
-              icon={<PeopleOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Contacts Information"
-              to="/contacts"
-              icon={<ContactsOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
             <Item
               title="All Objects"
               to="/objects"
-              icon={<ReceiptOutlinedIcon />}
+              icon={<EmojiObjectsIcon  />}
               selected={selected}
               setSelected={setSelected}
             />
-
+            <Item
+              title="Objects Types"
+              to="/objectsTypes"
+              icon={<DataObjectIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
             <Typography
               variant="h6"
               color={colors.grey[300]}

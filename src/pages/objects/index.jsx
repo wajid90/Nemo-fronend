@@ -1,38 +1,63 @@
-import React from "react";
-import { Box, Typography, useTheme } from "@mui/material";
+import React, { useEffect } from "react";
+import { Alert, Box, Button, CircularProgress,Typography, useTheme} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { mockDataInvoices } from "../../data/mockData";
 
 import Header from "../../components/Header";
+import { useDispatch, useSelector } from "react-redux";
+import { getObjects } from "../../redux/objectSlice";
+import { Link } from "react-router-dom";
 
-const Invoices = () => {
+const AllObjects = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
+  const dispatch=useDispatch();
+  const {isLoadding,objects}=useSelector((state)=>state.objects);
+
+  useEffect(()=>{
+      dispatch(getObjects());
+  },[]);
   const columns = [
-    { field: "id", headerName: "Id" },
+    { field: "objectId", headerName: "Object Id" },
     {
-      field: "name",
-      headerName: "Name",
+      field: "objectName",
+      headerName: "Object Name",
       width: 200,
       cellClassName: "name-column--cell",
     },
-    { field: "email", headerName: "Email", width: 200 },
-    { field: "phone", headerName: "Phone Number", width: 100 },
-
+    { field: "objectTitle", headerName: "Object Title", width: 200 },
+    { field: "objectDescription", headerName: "Object Description", width: 200 },
+    { field: "maxFieldsExpected", headerName: "Max Fields Expected", width: 200 },
+    { field: "objectValueType", headerName: "ObjectValue Type", width: 200 },
+    { field: "objectControlType", headerName: "ObjectControl Type", width: 200 },
+    { field: "isDeleted", headerName: "isDeleted", width: 100 },
     {
-      field: "cost",
-      headerName: "Cost",
-      width: 100,
-      renderCell: ({ row: { cost } }) => {
-        return <Typography color={colors.greenAccent[500]}>${cost}</Typography>;
+      field: 'action',
+      headerName: 'Action',
+      width: 180,
+      sortable: false,
+      disableClickEventBubbling: true,
+      
+      renderCell: (params) => {
+          return (
+            <Box className="flex">
+             <Link to={`/objectIntances/${params.row.objectId}`} className="linkStyle" >
+                   Instances
+              </Link>
+              {/* <Button variant="outlined" color="error" size="small" onClick={onClick}>Delete</Button> */}
+            </Box>
+          );
       },
-    },
-    { field: "date", headerName: "Date", width: 100 },
+    }
   ];
   return (
-    <Box m="20px">
+    <>
+    {
+        isLoadding===true ?(
+            <CircularProgress />
+        ):<Box ml="20px"  mr="20px" mb="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="All Objects" subtitle="All object Records " />
       </Box>
@@ -68,10 +93,14 @@ const Invoices = () => {
           },
         }}
       >
-        <DataGrid checkboxSelection rows={mockDataInvoices} columns={columns} />
+      {
+         objects && objects.length>0? <DataGrid getRowId={(row) => row.objectId}  rows={objects} columns={columns} />: <Alert severity="error">Objects Doesn't  Found ...</Alert>
+      } 
       </Box>
     </Box>
+}
+  </>
   );
 };
 
-export default Invoices;
+export default AllObjects;
