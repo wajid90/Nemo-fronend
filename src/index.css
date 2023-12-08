@@ -36,3 +36,9 @@ body,
   
   
 }
+.MuiAutocomplete-root div:first-of-type:hover{
+  border-color: #2196F3;
+}
+.MuiAutocomplete-root fieldset:hover{
+  border-color: #2196F3 !important;
+}

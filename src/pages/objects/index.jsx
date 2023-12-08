@@ -33,24 +33,7 @@ const AllObjects = () => {
     { field: "objectValueType", headerName: "ObjectValue Type", width: 200 },
     { field: "objectControlType", headerName: "ObjectControl Type", width: 200 },
     { field: "isDeleted", headerName: "isDeleted", width: 100 },
-    {
-      field: 'action',
-      headerName: 'Action',
-      width: 180,
-      sortable: false,
-      disableClickEventBubbling: true,
-      
-      renderCell: (params) => {
-          return (
-            <Box className="flex">
-             <Link to={`/objectIntances/${params.row.objectId}`} className="linkStyle" >
-                   Instances
-              </Link>
-              {/* <Button variant="outlined" color="error" size="small" onClick={onClick}>Delete</Button> */}
-            </Box>
-          );
-      },
-    }
+
   ];
   return (
     <>

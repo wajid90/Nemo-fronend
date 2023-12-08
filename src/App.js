@@ -10,6 +10,9 @@ import Form from "./pages/form/index.jsx";
 import AllObjects from "./pages/objects/index.jsx";
 import AllObjectsTypes from "./pages/objectsTypes/index.js";
 import ObjectInstance from "./pages/objectsInstances/index.js";
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+
 
 const App = () => {
   const [theme, colorMode] = useMode();
@@ -18,6 +21,7 @@ const App = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <MyProSidebarProvider>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
           <div style={{ height: "100%", width: "100%" }}>
             <main>
               <Topbar />
@@ -25,12 +29,13 @@ const App = () => {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/objects" element={<AllObjects />} />
                 <Route path="/objectsTypes" element={<AllObjectsTypes />} />
-                <Route path="/objectIntances/:id" element={<ObjectInstance />} />
+                <Route path="/objectIntances" element={<ObjectInstance />} />
                 <Route path="/form" element={<Form />} /> 
               </Routes>
               <Toaster/>
             </main>
           </div>
+          </LocalizationProvider>
         </MyProSidebarProvider>
       </ThemeProvider>
     </ColorModeContext.Provider>
