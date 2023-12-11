@@ -6,18 +6,18 @@ import { mockDataInvoices } from "../../data/mockData";
 
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllObjectTypes } from "../../redux/objectSlice";
+import { getAllObjectTypes } from "../../redux/Type/typeSlice";
+import Loader from "../../components/Loader";
 
 const AllObjectsTypes = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const dispatch=useDispatch();
-  const {isLoadding,objectTypes,isSuccess,isError}=useSelector((state)=>state.objects);
-
-  useEffect(()=>{
-      dispatch(getAllObjectTypes());
-  },[]);
-  //console.log(objectTypes);
+  const {isLoadding,objectTypes,isSuccess,isError}=useSelector((state)=>state.types);
+  const customStyle = {
+    width: '100px', // Adjust to your desired width
+    height: '100px', // Adjust to your desired height
+  };
 
   const columns = [
     { field: "objectTypeId", headerName: "Object Type Id" },
@@ -34,8 +34,8 @@ const AllObjectsTypes = () => {
     <>
     {
         isLoadding===true ?(
-            <CircularProgress />
-        ): <Box  ml="20px"  mr="20px" mb="20px">
+            <Loader/>
+        ): (<Box  ml="20px"  mr="20px" mb="20px">
             <Box display="flex" justifyContent="space-between" alignItems="center">
               <Header title="All Objects Types" subtitle="Objects Schema" />
             </Box>
@@ -72,9 +72,9 @@ const AllObjectsTypes = () => {
               }}
             >
       
-              <DataGrid getRowId={(row) => row.objectTypeId}  rows={objectTypes} columns={columns} />
+              <DataGrid getRowId={(row) => row.objectTypeId}  rows={objectTypes && objectTypes.filter && objectTypes.filter((a)=>(a.objectTypeName!=="Root" && a.objectTypeName!=="Field" && a.objectTypeName!=="User"))} columns={columns} />
             </Box>
-          </Box>
+          </Box>)
             
     }
     </>

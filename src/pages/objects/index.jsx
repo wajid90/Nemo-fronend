@@ -1,24 +1,100 @@
-import React, { useEffect } from "react";
-import { Alert, Box, Button, CircularProgress,Typography, useTheme} from "@mui/material";
+import React, { useEffect, useMemo } from "react";
+import { Alert, Autocomplete, Box, Button, CircularProgress,Grid,TextField,Typography, useTheme} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { mockDataInvoices } from "../../data/mockData";
 
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { getObjects } from "../../redux/objectSlice";
+import { getAllObjectTypes, getObjectByType, getObjects } from "../../redux/objectSlice";
 import { Link } from "react-router-dom";
+import { DatePicker } from "@mui/x-date-pickers";
+import { Search } from "@mui/icons-material";
+import Loader from "../../components/Loader";
+
+var operator=["=","<",">","<=",">","<=",">"];
+//let obj=[];
 
 const AllObjects = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
+  const {isLoadding,objects,objectTypes,objectByType}=useSelector((state)=>state.objects);
   const dispatch=useDispatch();
-  const {isLoadding,objects}=useSelector((state)=>state.objects);
+  const [object, setObject] = React.useState("");
+ 
+  const [objecttypeId,setObjectTypeId] = React.useState("");
+  const [objId,setObjectId] = React.useState("");
 
-  useEffect(()=>{
-      dispatch(getObjects());
+  const [objType, setobjType] = React.useState([]);
+  const [obj, setobj] = React.useState([]);
+
+
+  const [inputObject, setInputObject] = React.useState("");
+
+
+  const [objectType, setObjectType] = React.useState("");
+  const [inputObjectType, setInputObjectType] = React.useState("");
+
+  const [objectField, setObjectField] = React.useState([]);
+
+  const [fieldName, setFieldName] = React.useState("");
+  const [inputFieldName, setInputFieldName] = React.useState("");
+  const [fieldOperator, setFieldOperator] = React.useState("");
+  const [inputfieldOperator, setInputFieldOperator] = React.useState("");
+
+  const [fromDate, setFromDate] = React.useState("");
+  const [toDate, setToDate] = React.useState("");
+  const [createdBy, setCreatedBy] = React.useState("");
+  const [objectCreatedBy, setObjectCreatedBy] = React.useState([]);
+
+  
+
+
+  
+  const [inputCreatedBy, setInputCreatedBy] = React.useState("");
+
+
+  useMemo(()=>{
+      let obj =objectTypes && objectTypes.length>0 && objectTypes.map((a)=>{
+         if(a.objectTypeId.toString()==="1" || a.objectTypeId.toString()==="2" || a.objectTypeId.toString()==="6"){
+          return "";
+         }
+         return {
+          objectTypeId:a.objectTypeId,
+          objectTypeName:a.objectTypeName,
+        }
+        
+      }).filter(a => a!=="");
+          setobjType(obj);
   },[]);
+  useEffect(()=>{
+    let at= objects && objects.length>0 && objects.map(a => {
+      //console.log(a.objectValueType +" "+objecttypeId);
+      if(objecttypeId!=="" && objecttypeId){
+       if(a.objectTypeId.toString()===objecttypeId.toString()){
+         return  {
+           objectId:a.objectId,
+           objectName:a.objectName,
+         };
+       }
+      }  
+      return "";
+    }).filter(a => a!=="");
+   setobj(at);
+   },[objecttypeId]);
+
+
+  useMemo(()=>{
+    let at= objects && objects.length>0 && objects.map(a => {
+      if(objecttypeId!=="" && objecttypeId && a.objectName){
+       if(a.objectValueType.toString()===objecttypeId.toString() && inputObject.toString()===a.objectName){
+         return  a.createdBy;
+       }
+      }  
+      return "";
+    }).filter(a => a!=="");
+    setObjectCreatedBy(at);
+   },[objecttypeId,inputObject]);
   const columns = [
     { field: "objectId", headerName: "Object Id" },
     {
@@ -35,12 +111,18 @@ const AllObjects = () => {
     { field: "isDeleted", headerName: "isDeleted", width: 100 },
 
   ];
+
+  const customStyle = {
+    width: '100px', // Adjust to your desired width
+    height: '100px', // Adjust to your desired height
+  };
+
   return (
     <>
     {
         isLoadding===true ?(
-            <CircularProgress />
-        ):<Box ml="20px"  mr="20px" mb="20px">
+          <Loader/>
+        ):(<Box ml="20px"  mr="20px" mb="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="All Objects" subtitle="All object Records " />
       </Box>
@@ -76,11 +158,147 @@ const AllObjects = () => {
           },
         }}
       >
+        <Grid container spacing={1} mt={3}>
+{ <Grid item xs={8} sm={6} md={4} lg={3}>
+  <Autocomplete
+        value={objectType}
+        onChange={(event, newValue) => {
+       //   console.log(newValue);
+          setObjectTypeId(newValue?.objectTypeId);
+          setObjectType(newValue);
+        }}
+        getOptionLabel={(option) => (option ? option.objectTypeName : "")}
+       
+        inputValue={inputObjectType}
+        onInputChange={(event, newInputValue) => {
+          setInputObjectType(newInputValue);
+        }}
+        id="controllable-states-demo"
+        options={objType  || []}
+        sx={{ width: 250 }}
+        renderInput={(params) => <TextField {...params} label="Objects Type" />}
+      />
+  </Grid>
+}
+ {inputObjectType && objecttypeId!=="" && <Grid item xs={8} sm={6} md={4} lg={3}>
+    <Autocomplete
+        value={object}
+        onChange={(event, newValue) => {
+          //console.log(newValue);
+          setObjectId(newValue?.objectId)
+          setObject(newValue);
+        }}
+       
+        getOptionLabel={(option) =>(option ? option.objectName : "")}
+        inputValue={inputObject}
+        onInputChange={(event, newInputValue) => {
+         setInputObject(newInputValue);
+        }}
+        id="controllable-states-demo"
+        options={obj  || []}
+       // objectByType && objectByType.length>0 && objectByType.map(a =>{ return {objectId:a.objectId, objectName:a.objectName}})
+        sx={{ width: 250 }}
+        renderInput={(params) => <TextField {...params} label="Objects" />}
+      />
+  </Grid>
+}
+{  inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={3}>
+    <Autocomplete
+        value={fieldName}
+        onChange={(event, newValue) => {
+          console.log(newValue);
+        //  setObjectId(newValue?.objectId)
+          setFieldName(newValue);
+        }}
+        //getOptionLabel={(option) =>(option ? option.objectName : "")}
+        inputValue={inputFieldName}
+        onInputChange={(event, newInputValue) => {
+          console.log(newInputValue);
+         setInputFieldName(newInputValue);
+        }}
+        id="controllable-states-demo"
+        options={objectField || []}
+        sx={{ width: 250 }}
+        renderInput={(params) => <TextField {...params} label="Objects fields.." />}
+      />
+  </Grid>
+}
+{  inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={3}>
+    <Autocomplete
+        value={fieldOperator}
+        onChange={(event, newValue) => {
+          console.log(newValue);
+           setFieldOperator(newValue);
+        }}
+        //getOptionLabel={(option) =>(option ? option.objectName : "")}
+        inputValue={inputfieldOperator}
+        onInputChange={(event, newInputValue) => {
+         setInputFieldOperator(newInputValue);
+        }}
+        id="controllable-states-demo"
+        options={operator || []}
+        sx={{ width: 250 }}
+        renderInput={(params) => <TextField {...params} label="Operator" />}
+      />
+  </Grid>
+}
+{
+    inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={3}>
+     <TextField id="outlined-basic" label="FieldValue" variant="outlined" 
+          placeholder="Enter Field Value"
+          fullWidth/>
+</Grid>
+}
+{/* {
+  inputObject && <Grid item xs={8} sm={6} md={4} lg={3}> 
+  <DatePicker
+   label="From Date"
+   value={fromDate}
+   onChange={(newDueDate) => setFromDate(newDueDate)}
+   />
+   </Grid>
+} 
+{
+  inputObject &&   <Grid item xs={8} sm={6} md={4} lg={3}>
+  <DatePicker
+  slotProps={{ textField: { size: 'medium' } }}
+  label="to Date"
+  value={toDate}
+  onChange={(newDueDate) => setToDate(newDueDate)}
+/>
+  </Grid> 
+} */}
+{
+  inputObject && objId!=="" &&<Grid item xs={8} sm={6} md={4} lg={3}>
+  <Autocomplete
+        value={createdBy}
+        onChange={(event, newValue) => {
+          setCreatedBy(newValue);
+        }}
+        inputValue={inputCreatedBy}
+        onInputChange={(event, newInputValue) => {
+          setInputCreatedBy(newInputValue);
+        }}
+        id="controllable-states-demo"
+        options={objectCreatedBy}
+        sx={{ width: 250 }}
+        renderInput={(params) => <TextField {...params} label="Created By" />}
+      />
+  </Grid>
+}
+<Grid item>
+<Button variant="solid" size="large" endIcon={<Search />} sx={{padding:"15px",backgroundColor:colors.greenAccent[500]}}>Search</Button>
+</Grid>
+
+ </Grid>
+ <div style={{ height: 350, width: '100%' ,marginTop:"20px"}}>
       {
-         objects && objects.length>0? <DataGrid getRowId={(row) => row.objectId}  rows={objects} columns={columns} />: <Alert severity="error">Objects Doesn't  Found ...</Alert>
+         objects && objects.length>0? <DataGrid getRowId={(row) => row.objectId}  rows={objects.filter((a)=>a.isDeleted!==false)} columns={columns} />: <Alert severity="error">Objects Doesn't  Found ...</Alert>
       } 
+      <Alert severity="success">Objects 5  Found ...</Alert>
+  </div>
       </Box>
-    </Box>
+    </Box>)
 }
   </>
   );

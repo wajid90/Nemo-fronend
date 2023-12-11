@@ -1,9 +1,11 @@
 import { createSlice, createAsyncThunk, createAction } from "@reduxjs/toolkit";
 import objectService from "./objectAction";
 const initialState = {
-  object: [],
-  objectTypes:[],
+  object: JSON.parse(localStorage.getItem('getAllObjects')) || [],
+  objectTypes:JSON.parse(localStorage.getItem('getObjectTypes')) || [],
+  objectByType:[],
   ObjectInstances:[],
+  objectInstance:[],
   isError: false,
   isSuccess: false,
   isLoadding: false,
@@ -22,6 +24,9 @@ export const getAllObjectTypes = createAsyncThunk(
   }
 );
 
+
+
+
 export const getObjects = createAsyncThunk(
   "objects/all-objects",
   async (thunkAPI) => {
@@ -32,7 +37,7 @@ export const getObjects = createAsyncThunk(
     }
   }
 );
-export const objectInstance = createAsyncThunk(
+export const getObjectInstance = createAsyncThunk(
   "objects/objectInstances",
   async (objectId,thunkAPI) => {
     try {
@@ -42,7 +47,26 @@ export const objectInstance = createAsyncThunk(
     }
   }
 );
-
+export const getObjectByType = createAsyncThunk(
+  "objects/objectByType",
+  async (objectType,thunkAPI) => {
+    try {
+      return await objectService.getObjectofType(objectType);
+    } catch (e) {
+      return thunkAPI.rejectWithValue(e);
+    }
+  }
+);
+export const getInstanceByObjectName = createAsyncThunk(
+  "objects/get-instance",
+  async (objectName,thunkAPI) => {
+    try {
+      return await objectService.getInstanceByObjectName(objectName);
+    } catch (e) {
+      return thunkAPI.rejectWithValue(e);
+    }
+  }
+);
 
 export const getAllProductsSlice = createSlice({
   name: "products",
@@ -79,19 +103,47 @@ export const getAllProductsSlice = createSlice({
         state.isSuccess = false;
         state.objectTypes = [];
         state.message = action.payload?.response?.data?.message;
-      }).addCase(objectInstance.pending, (state) => {
+      }).addCase(getObjectInstance.pending, (state) => {
         state.isLoadding = true;
       })
-      .addCase(objectInstance.fulfilled, (state, action) => {
+      .addCase(getObjectInstance.fulfilled, (state, action) => {
         state.isLoadding = false;
         state.isSuccess = true;
         state.ObjectInstances = JSON.parse(action.payload.result.requests);
       })
-      .addCase(objectInstance.rejected, (state, action) => {
+      .addCase(getObjectInstance.rejected, (state, action) => {
         state.isLoadding = false;
         state.isError = true;
         state.isSuccess = false;
         state.ObjectInstances = [];
+        state.message = action.payload?.response?.data?.message;
+      }).addCase(getObjectByType.pending, (state) => {
+        state.isLoadding = true;
+      })
+      .addCase(getObjectByType.fulfilled, (state, action) => {
+        state.isLoadding = false;
+        state.isSuccess = true;
+        state.objectByType =action.payload.result;
+      })
+      .addCase(getObjectByType.rejected, (state, action) => {
+        state.isLoadding = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.objectByType = [];
+        state.message = action.payload?.response?.data?.message;
+      }).addCase(getInstanceByObjectName.pending, (state) => {
+        state.isLoadding = true;
+      })
+      .addCase(getInstanceByObjectName.fulfilled, (state, action) => {
+        state.isLoadding = false;
+        state.isSuccess = true;
+        state.objectInstance = action.payload.result;
+      })
+      .addCase(getInstanceByObjectName.rejected, (state, action) => {
+        state.isLoadding = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.objectInstance = [];
         state.message = action.payload?.response?.data?.message;
       })
      

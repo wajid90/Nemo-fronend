@@ -12,10 +12,27 @@ import AllObjectsTypes from "./pages/objectsTypes/index.js";
 import ObjectInstance from "./pages/objectsInstances/index.js";
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllObjectTypes, getObjects } from "./redux/objectSlice.js";
 
 
 const App = () => {
   const [theme, colorMode] = useMode();
+  const dispatch=useDispatch();
+  const {objects,objectTypes} =useSelector((state)=>state.objects);
+  useEffect(()=>{
+    if(!localStorage.getItem("getObjectTypes")){
+      dispatch(getAllObjectTypes());
+    }else{
+     localStorage.setItem("getObjectTypes",JSON.stringify(objectTypes));
+    }
+    if(!localStorage.getItem("getAllObjects")){
+      dispatch(getObjects());
+    }else{
+      localStorage.setItem("getAllObjects",JSON.stringify(objects));
+    }
+  },[]);
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>

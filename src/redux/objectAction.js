@@ -19,10 +19,25 @@ const getObjectInstances = async (objectId) => {
   console.log(reponces.data);
   return reponces.data;
 };
+const getObjectofType = async (objectType) => {
+  console.log(objectType);
+  const reponces = await axios.get(`https://localhost:7241/getObjectsofType?typeName=${objectType}`);
+  return reponces.data;
+};
+const getInstanceByObjectName = async (objectName) => {
+ 
+  const reponces = await axios.get(`https://localhost:7241/getInstanceByObjectName?objectName=${objectName}`);
+  console.log(reponces.data);
+  return reponces.data;
+};
+
+
 
 const objectService = {
     getAllObjectsType,
     getAllObjects,
-    getObjectInstances
+    getObjectInstances,
+    getObjectofType,
+    getInstanceByObjectName
 };
 export default objectService;

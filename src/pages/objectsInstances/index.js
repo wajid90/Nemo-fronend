@@ -5,10 +5,11 @@ import { tokens } from "../../theme";
 import { mockDataInvoices } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllObjectTypes, getObjects, objectInstance  } from "../../redux/objectSlice";
+import { getAllObjectTypes, getInstanceByObjectName, getObjects, getObjectInstance  } from "../../redux/objectSlice";
 import { useParams } from "react-router-dom";
 import { DatePicker } from "@mui/x-date-pickers";
 import { Search } from "@mui/icons-material";
+import Loader from "../../components/Loader";
 
 //
 //var objType=["option1","option2"];
@@ -18,26 +19,23 @@ const options=["option1","option2"];
 const ObjectInstance = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const {isLoadding,objects,objectTypes}=useSelector((state)=>state.objects);
+  const {isLoadding,objects,objectTypes,ObjectInstances}=useSelector((state)=>state.objects);
   const dispatch=useDispatch();
-  const {ObjectInstances}=useSelector((state)=>state.objects);
+
   const [object, setObject] = React.useState("");
  
-  const [objecttypeId,setObjectTypeId] = React.useState("")
+  const [objecttypeId,setObjectTypeId] = React.useState("");
+  const [objId,setObjectId] = React.useState("");
+
+
+  
   const [objType, setobjType] = React.useState([]);
 
   const [inputObject, setInputObject] = React.useState("");
+
   const [obj, setObj] = React.useState([]);
 
-  // const [ob, setob] = React.useState(()=>{
-  //   return objects && objects.length>0 && objects.map(a => {
-  //     console.log(a.objectValueType +" "+objecttypeId);
-  //     if(a.objectValueType.toString()===objecttypeId){
-  //       return  a.objectName;
-  //     }
-  //    return "";
-  //  }).filter(a => a!=="");
-  // });
+
   
 
   const [objectType, setObjectType] = React.useState("");
@@ -54,28 +52,36 @@ const ObjectInstance = () => {
 
 
   useMemo(()=>{
-      dispatch(objectInstance("10057"));
-      dispatch(getAllObjectTypes());
-      let obj =objectTypes && objectTypes.length>0 && objectTypes.map((a)=>{
-          return {
-            objectTypeId:a.objectTypeId,
-            objectTypeName:a.objectTypeName,
-          }
-          });
-          setobjType(obj);
+   // dispatch(getAllObjectTypes());
+    let obj =objectTypes && objectTypes.length>0 && objectTypes.map((a)=>{
+       if(a.objectTypeId.toString()==="1" || a.objectTypeId.toString()==="2" || a.objectTypeId.toString()==="6"){
+        return "";
+       }
+       return {
+        objectTypeId:a.objectTypeId,
+        objectTypeName:a.objectTypeName,
+      }
+      
+    }).filter(a => a!=="");
+        setobjType(obj);
   },[]);
   useEffect(()=>{
    let at= objects && objects.length>0 && objects.map(a => {
      //console.log(a.objectValueType +" "+objecttypeId);
      if(objecttypeId!=="" && objecttypeId){
-      if(a.objectValueType.toString()===objecttypeId.toString()){
-        return  a.objectName;
+      if(a.objectTypeId.toString()===objecttypeId.toString()){
+        return  {
+          objectId:a.objectId,
+          objectName:a.objectName,
+        };
       }
      }  
      return "";
    }).filter(a => a!=="");
   setObj(at);
-  },[objecttypeId,inputObjectType]);
+  },[objecttypeId]);
+
+
 
   useMemo(()=>{
     let at= objects && objects.length>0 && objects.map(a => {
@@ -89,9 +95,11 @@ const ObjectInstance = () => {
     setObjectCreatedBy(at);
    },[objecttypeId,inputObject]);
 
-
- console.log(obj);
-
+   const getInstanceHandler=async()=>{
+    if(objId !==""){
+        await dispatch(getObjectInstance(objId));
+    }
+   }
   const columns = [
     { field: "InstanceId", headerName: "Instance Id" },
     {
@@ -115,13 +123,11 @@ const ObjectInstance = () => {
     { field: "CreatedDate", headerName: "Created Date", width: 100 },
   
   ];
+
+  //
   return (
     <>
-    {
-        isLoadding===true ?(
-            <CircularProgress />
-        ):
-    <Box  ml="20px"  mr="20px" mb="20px">
+    {(<Box  ml="20px"  mr="20px" mb="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="Objects Instances" subtitle="Objects Instances" />
       </Box>
@@ -182,10 +188,10 @@ const ObjectInstance = () => {
     <Autocomplete
         value={object}
         onChange={(event, newValue) => {
-          console.log(newValue);
+          setObjectId(newValue?.objectId)
           setObject(newValue);
         }}
-        //getOptionLabel={(option) =>option.)}
+        getOptionLabel={(option) =>(option ? option.objectName : "")}
         inputValue={inputObject}
         onInputChange={(event, newInputValue) => {
           console.log(newInputValue);
@@ -198,8 +204,8 @@ const ObjectInstance = () => {
       />
   </Grid>
 }
-{
-  inputObject && <Grid item xs={8} sm={6} md={4} lg={3}> 
+{/* {
+  inputObject!=="" && <Grid item xs={8} sm={6} md={4} lg={3}> 
   <DatePicker
    label="From Date"
    value={fromDate}
@@ -208,7 +214,7 @@ const ObjectInstance = () => {
    </Grid>
 } 
 {
-  inputObject &&   <Grid item xs={8} sm={6} md={4} lg={3}>
+  inputObject!=="" &&   <Grid item xs={8} sm={6} md={4} lg={3}>
   <DatePicker
   slotProps={{ textField: { size: 'medium' } }}
   label="to Date"
@@ -216,7 +222,7 @@ const ObjectInstance = () => {
   onChange={(newDueDate) => setToDate(newDueDate)}
 />
   </Grid> 
-}
+} */}
 {
   toDate &&<Grid item xs={8} sm={6} md={4} lg={3}>
   <Autocomplete
@@ -236,19 +242,19 @@ const ObjectInstance = () => {
   </Grid>
 }
 <Grid item>
-<Button variant="solid" size="large" endIcon={<Search />} sx={{padding:"15px",backgroundColor:colors.greenAccent[500]}}>Search</Button>
+<Button onClick={getInstanceHandler} variant="solid" size="large" endIcon={<Search />} sx={{padding:"15px",backgroundColor:colors.greenAccent[500]}}>Search</Button>
 </Grid>
 
  </Grid>
       <div style={{ height: 350, width: '100%' ,marginTop:"20px"}}>
         {
-          
-           ObjectInstances!=null && ObjectInstances.length>0 ? <DataGrid getRowId={(row) => row.InstanceId}  rows={ObjectInstances} columns={columns} />:<Alert severity="error">Intances Doesn't  Found ...</Alert>
+          isLoadding === true ?  <div style={{marginLeft:"400px"}}> <Loader/></div> : ObjectInstances.length>0  ? ObjectInstances && ObjectInstances.length>0 ? <><DataGrid getRowId={(row) => row.InstanceId}  rows={ObjectInstances} columns={columns} /><Alert severity="success">{ObjectInstances?.length} Object Instances   Found ...</Alert></>:  <Alert severity="error">Intances Doesn't  Found ...</Alert> :<Alert severity="info"> Please Select Object  ...</Alert> 
         
         }
+        
       </div>
       </Box>
-    </Box>
+    </Box>)
 }
     </>
   );
