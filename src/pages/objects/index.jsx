@@ -6,11 +6,13 @@ import { mockDataInvoices } from "../../data/mockData";
 
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllObjectTypes, getObjectByType, getObjects } from "../../redux/objectSlice";
+import { getObjectStrutureByObjectId} from "../../redux/objectSlice";
 import { Link } from "react-router-dom";
 import { DatePicker } from "@mui/x-date-pickers";
 import { Search } from "@mui/icons-material";
 import Loader from "../../components/Loader";
+import { getAllObjectTypes } from "../../redux/Type/typeSlice";
+import { getObjectInstance } from "../../redux/Instance/instanceSlice";
 
 var operator=["=","<",">","<=",">","<=",">"];
 //let obj=[];
@@ -18,7 +20,9 @@ var operator=["=","<",">","<=",">","<=",">"];
 const AllObjects = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const {isLoadding,objects,objectTypes,objectByType}=useSelector((state)=>state.objects);
+  const {isLoadding:objLoadding,objects,objectStruture}=useSelector((state)=>state.objects);
+  const {isLoadding:typeLoadding,objectTypes}=useSelector((state)=>state.types);
+  const {isLoadding:instLoadding,ObjectInstances}=useSelector((state)=>state.instances);
   const dispatch=useDispatch();
   const [object, setObject] = React.useState("");
  
@@ -28,33 +32,27 @@ const AllObjects = () => {
   const [objType, setobjType] = React.useState([]);
   const [obj, setobj] = React.useState([]);
 
-
   const [inputObject, setInputObject] = React.useState("");
-
 
   const [objectType, setObjectType] = React.useState("");
   const [inputObjectType, setInputObjectType] = React.useState("");
 
-  const [objectField, setObjectField] = React.useState([]);
+  // const [objectField, setObjectField] = React.useState([]);
+  // const [objectStru, setobjectStru] = React.useState("");
 
-  const [fieldName, setFieldName] = React.useState("");
-  const [inputFieldName, setInputFieldName] = React.useState("");
+  // const [fieldName, setFieldName] = React.useState("");
+  // const [inputFieldName, setInputFieldName] = React.useState("");
   const [fieldOperator, setFieldOperator] = React.useState("");
   const [inputfieldOperator, setInputFieldOperator] = React.useState("");
 
-  const [fromDate, setFromDate] = React.useState("");
-  const [toDate, setToDate] = React.useState("");
-  const [createdBy, setCreatedBy] = React.useState("");
-  const [objectCreatedBy, setObjectCreatedBy] = React.useState([]);
+  //const [mappingId,setMappingId] = React.useState("");
 
+  // const [createdBy, setCreatedBy] = React.useState("");
+  // const [objectCreatedBy, setObjectCreatedBy] = React.useState([]);
   
+  // const [inputCreatedBy, setInputCreatedBy] = React.useState("");
 
-
-  
-  const [inputCreatedBy, setInputCreatedBy] = React.useState("");
-
-
-  useMemo(()=>{
+  useEffect(()=>{
       let obj =objectTypes && objectTypes.length>0 && objectTypes.map((a)=>{
          if(a.objectTypeId.toString()==="1" || a.objectTypeId.toString()==="2" || a.objectTypeId.toString()==="6"){
           return "";
@@ -80,21 +78,40 @@ const AllObjects = () => {
       }  
       return "";
     }).filter(a => a!=="");
+    
    setobj(at);
    },[objecttypeId]);
 
 
-  useMemo(()=>{
-    let at= objects && objects.length>0 && objects.map(a => {
-      if(objecttypeId!=="" && objecttypeId && a.objectName){
-       if(a.objectValueType.toString()===objecttypeId.toString() && inputObject.toString()===a.objectName){
-         return  a.createdBy;
-       }
-      }  
-      return "";
-    }).filter(a => a!=="");
-    setObjectCreatedBy(at);
-   },[objecttypeId,inputObject]);
+  // useMemo(()=>{
+  // let at= objects && objects.length>0 && objects.map(a => {
+  //     if(objecttypeId!=="" && objecttypeId && a.objectName){
+  //      if(a.objectValueType.toString()===objecttypeId.toString() && inputObject.toString()===a.objectName){
+  //        return  a.createdBy;
+  //      }
+  //     }  
+  //     return "";
+  //   }).filter(a => a!=="");
+
+  //   setObjectCreatedBy(at);
+  //  },[objecttypeId,inputObject]);
+
+   useMemo( ()=>{
+    if(objId && objId!==""){
+      dispatch(getObjectStrutureByObjectId(objId));
+    }
+  
+   },[objId,inputObject]);
+
+
+  useMemo( ()=>{
+    if(objectStruture && objId &&  objId!==""){
+      dispatch(getObjectInstance(objId));
+    }
+  
+   },[objId]);
+
+
   const columns = [
     { field: "objectId", headerName: "Object Id" },
     {
@@ -120,9 +137,7 @@ const AllObjects = () => {
   return (
     <>
     {
-        isLoadding===true ?(
-          <Loader/>
-        ):(<Box ml="20px"  mr="20px" mb="20px">
+    (<Box ml="20px"  mr="20px" mb="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="All Objects" subtitle="All object Records " />
       </Box>
@@ -203,25 +218,13 @@ const AllObjects = () => {
   </Grid>
 }
 {  inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={3}>
-    <Autocomplete
-        value={fieldName}
-        onChange={(event, newValue) => {
-          console.log(newValue);
-        //  setObjectId(newValue?.objectId)
-          setFieldName(newValue);
-        }}
-        //getOptionLabel={(option) =>(option ? option.objectName : "")}
-        inputValue={inputFieldName}
-        onInputChange={(event, newInputValue) => {
-          console.log(newInputValue);
-         setInputFieldName(newInputValue);
-        }}
-        id="controllable-states-demo"
-        options={objectField || []}
-        sx={{ width: 250 }}
-        renderInput={(params) => <TextField {...params} label="Objects fields.." />}
-      />
-  </Grid>
+     <TextField id="outlined-basic" label="FieldValue" variant="outlined" 
+          placeholder="Enter Field Value"
+          fullWidth
+          disabled
+          value={objectStruture && objectStruture.fieldName}
+          />
+          </Grid>
 }
 {  inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={3}>
     <Autocomplete
@@ -244,7 +247,7 @@ const AllObjects = () => {
 }
 {
     inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={3}>
-     <TextField id="outlined-basic" label="FieldValue" variant="outlined" 
+     <TextField id="outlined-basic" label="FieldName" variant="outlined" 
           placeholder="Enter Field Value"
           fullWidth/>
 </Grid>
@@ -268,7 +271,7 @@ const AllObjects = () => {
 />
   </Grid> 
 } */}
-{
+{/* {
   inputObject && objId!=="" &&<Grid item xs={8} sm={6} md={4} lg={3}>
   <Autocomplete
         value={createdBy}
@@ -285,7 +288,7 @@ const AllObjects = () => {
         renderInput={(params) => <TextField {...params} label="Created By" />}
       />
   </Grid>
-}
+} */}
 <Grid item>
 <Button variant="solid" size="large" endIcon={<Search />} sx={{padding:"15px",backgroundColor:colors.greenAccent[500]}}>Search</Button>
 </Grid>

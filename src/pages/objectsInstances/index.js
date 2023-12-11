@@ -5,7 +5,7 @@ import { tokens } from "../../theme";
 import { mockDataInvoices } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllObjectTypes, getInstanceByObjectName, getObjects, getObjectInstance  } from "../../redux/objectSlice";
+import {  getObjectInstance  } from "../../redux/Instance/instanceSlice";
 import { useParams } from "react-router-dom";
 import { DatePicker } from "@mui/x-date-pickers";
 import { Search } from "@mui/icons-material";
@@ -19,7 +19,10 @@ const options=["option1","option2"];
 const ObjectInstance = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const {isLoadding,objects,objectTypes,ObjectInstances}=useSelector((state)=>state.objects);
+  const {isLoadding:objLoadding,objects}=useSelector((state)=>state.objects);
+  const {isLoadding:typeLoadding,objectTypes}=useSelector((state)=>state.types);
+  const {isLoadding:instLoadding,ObjectInstances}=useSelector((state)=>state.instances);
+
   const dispatch=useDispatch();
 
   const [object, setObject] = React.useState("");
@@ -248,7 +251,7 @@ const ObjectInstance = () => {
  </Grid>
       <div style={{ height: 350, width: '100%' ,marginTop:"20px"}}>
         {
-          isLoadding === true ?  <div style={{marginLeft:"400px"}}> <Loader/></div> : ObjectInstances.length>0  ? ObjectInstances && ObjectInstances.length>0 ? <><DataGrid getRowId={(row) => row.InstanceId}  rows={ObjectInstances} columns={columns} /><Alert severity="success">{ObjectInstances?.length} Object Instances   Found ...</Alert></>:  <Alert severity="error">Intances Doesn't  Found ...</Alert> :<Alert severity="info"> Please Select Object  ...</Alert> 
+          instLoadding === true ?  <div style={{marginLeft:"400px"}}> <Loader/></div> : ObjectInstances.length>0  ? ObjectInstances && ObjectInstances.length>0 ? <><DataGrid getRowId={(row) => row.InstanceId}  rows={ObjectInstances} columns={columns} /><Alert severity="success">{ObjectInstances?.length} Object Instances   Found ...</Alert></>:  <Alert severity="error">Intances Doesn't  Found ...</Alert> :<Alert severity="info"> Please Select Object  ...</Alert> 
         
         }
         

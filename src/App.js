@@ -14,13 +14,16 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllObjectTypes, getObjects } from "./redux/objectSlice.js";
+import {  getObjects } from "./redux/objectSlice.js";
+import {  getAllObjectTypes } from "./redux/Type/typeSlice.js";
+
 
 
 const App = () => {
   const [theme, colorMode] = useMode();
   const dispatch=useDispatch();
-  const {objects,objectTypes} =useSelector((state)=>state.objects);
+  const {objects} =useSelector((state)=>state.objects);
+  const {objectTypes}=useSelector((state)=>state.types);
   useEffect(()=>{
     if(!localStorage.getItem("getObjectTypes")){
       dispatch(getAllObjectTypes());
