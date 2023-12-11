@@ -38,15 +38,15 @@ const AllObjects = () => {
   const [inputObjectType, setInputObjectType] = React.useState("");
 
   // const [objectField, setObjectField] = React.useState([]);
-  // const [objectStru, setobjectStru] = React.useState("");
 
-  // const [fieldName, setFieldName] = React.useState("");
-  // const [inputFieldName, setInputFieldName] = React.useState("");
+  const [instancefieldValue, setInstanceFieldValue] = React.useState([]);
+
+   const [fieldValue, setFieldValue] = React.useState("");
+   const [inputFieldValue, setInputFieldValue] = React.useState("");
   const [fieldOperator, setFieldOperator] = React.useState("");
   const [inputfieldOperator, setInputFieldOperator] = React.useState("");
 
   //const [mappingId,setMappingId] = React.useState("");
-
   // const [createdBy, setCreatedBy] = React.useState("");
   // const [objectCreatedBy, setObjectCreatedBy] = React.useState([]);
   
@@ -83,6 +83,7 @@ const AllObjects = () => {
    },[objecttypeId]);
 
 
+
   // useMemo(()=>{
   // let at= objects && objects.length>0 && objects.map(a => {
   //     if(objecttypeId!=="" && objecttypeId && a.objectName){
@@ -94,14 +95,13 @@ const AllObjects = () => {
   //   }).filter(a => a!=="");
 
   //   setObjectCreatedBy(at);
-  //  },[objecttypeId,inputObject]);
+  //  },[objId,inputObject]);
 
-   useMemo( ()=>{
-    if(objId && objId!==""){
-      dispatch(getObjectStrutureByObjectId(objId));
-    }
-  
-   },[objId,inputObject]);
+  //  useMemo( ()=>{
+  //   if(objId && objId!==""){
+  //     dispatch(getObjectStrutureByObjectId(objId));
+  //   }
+  //  },[objId,inputObject]);
 
 
   useMemo( ()=>{
@@ -218,7 +218,7 @@ const AllObjects = () => {
   </Grid>
 }
 {  inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={3}>
-     <TextField id="outlined-basic" label="FieldValue" variant="outlined" 
+     <TextField id="outlined-basic"  variant="outlined" 
           placeholder="Enter Field Value"
           fullWidth
           disabled
@@ -246,12 +246,33 @@ const AllObjects = () => {
   </Grid>
 }
 {
-    inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={3}>
-     <TextField id="outlined-basic" label="FieldName" variant="outlined" 
-          placeholder="Enter Field Value"
-          fullWidth/>
-</Grid>
-}
+  inputObject && objId!=="" &&<Grid item xs={8} sm={6} md={4} lg={3}>
+  <Autocomplete
+        value={fieldValue}
+        onChange={(event, newValue) => {
+          setFieldValue(newValue);
+        }}
+        getOptionLabel={(option) =>(option ? option.fieldValue : "")}
+        inputValue={inputFieldValue}
+        onInputChange={(event, newInputValue) => {
+          setInputFieldValue(newInputValue);
+        }}
+        id="controllable-states-demo"
+        options={ObjectInstances && ObjectInstances.length>0 && ObjectInstances.map(a => {
+          if(a[objectStruture.fieldName]!==""){
+            return {
+              instanceId:a.instanceId,
+              fieldValue:a[objectStruture.fieldName]
+            }
+          } 
+          return "";
+       
+      }).filter(a => a!=="") || []}
+        sx={{ width: 250 }}
+        renderInput={(params) => <TextField {...params} label="Field Values" />}
+      />
+  </Grid>
+} 
 {/* {
   inputObject && <Grid item xs={8} sm={6} md={4} lg={3}> 
   <DatePicker
