@@ -2,8 +2,9 @@ import { createSlice, createAsyncThunk, createAction } from "@reduxjs/toolkit";
 import objectService from "./objectAction";
 const initialState = {
   object: JSON.parse(localStorage.getItem('getAllObjects')) || [],
-  objectStruture:{},
+  objectStruture:[],
   getObjectByType:[],
+  searchObjects:[],
   isError: false,
   isSuccess: false,
   isLoadding: false,
@@ -44,6 +45,17 @@ export const getObjectStrutureByObjectId = createAsyncThunk(
     }
   }
 );
+export const searchObjectByFieldValue = createAsyncThunk(
+  "objects/get-searchObject",
+  async (data,thunkAPI) => {
+    try {
+      return await objectService.searchObject(data);
+    } catch (e) {
+      return thunkAPI.rejectWithValue(e);
+    }
+  }
+);
+
 
 
 export const objectSlice = createSlice({
@@ -94,8 +106,23 @@ export const objectSlice = createSlice({
         state.isSuccess = false;
         state.objectStruture = [];
         state.message = action.payload?.response?.data?.message;
+      }).addCase(searchObjectByFieldValue.pending, (state) => {
+        state.isLoadding = true;
+      })
+      .addCase(searchObjectByFieldValue.fulfilled, (state, action) => {
+        state.isLoadding = false;
+        state.isSuccess = true;
+        state.searchObjects = action.payload;
+      })
+      .addCase(searchObjectByFieldValue.rejected, (state, action) => {
+        state.isLoadding = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.searchObjects = [];
+        state.message = action.payload?.response?.data?.message;
       })
   },
 });
 
 export default objectSlice.reducer;
+
