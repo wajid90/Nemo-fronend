@@ -9,7 +9,7 @@ const getObjectInstances = async (objectId) => {
   };
   const getInstanceByObjectName = async (objectName) => {
    
-    const reponces = await axios.get(`https://localhost:7241/getInstanceByObjectName?objectName=${objectName}`);
+    const reponces = await axios.get(`https://localhost:7241/getObjectInstances?objectId=${objectName}`);
     console.log(reponces.data);
     return reponces.data;
   };

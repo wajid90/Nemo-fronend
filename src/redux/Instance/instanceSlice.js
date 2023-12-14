@@ -63,7 +63,7 @@ export const instanceSlice = createSlice({
         .addCase(getInstanceByObjectName.fulfilled, (state, action) => {
           state.isLoadding = false;
           state.isSuccess = true;
-          state.objectInstance = action.payload.result;
+          state.objectInstance =JSON.parse(action.payload.result.requests);
         })
         .addCase(getInstanceByObjectName.rejected, (state, action) => {
           state.isLoadding = false;

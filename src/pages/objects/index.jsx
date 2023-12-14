@@ -15,8 +15,8 @@ import { getAllObjectTypes } from "../../redux/Type/typeSlice";
 import { getObjectInstance } from "../../redux/Instance/instanceSlice";
 import toast from "react-hot-toast";
 
-var operator=["=","<",">","<=",">","<=",">","Like",];
-var operator1=["&&","||"];
+var operator=["=","<",">","<=",">=","Like"];
+var operator1=["And","Or"];
 
 //let obj=[];
 
@@ -40,12 +40,12 @@ const AllObjects = () => {
   const [objectType, setObjectType] = React.useState("");
   const [inputObjectType, setInputObjectType] = React.useState("");
 
-   const [Field, setField] = React.useState([]);
-   const [inputField, setInputField] = React.useState([]);
+   const [Field, setField] = React.useState("");
+   const [inputField, setInputField] = React.useState("");
 
    
-   const [Field2, setField2] = React.useState([]);
-   const [inputField2, setInputField2] = React.useState([]);
+   const [Field2, setField2] = React.useState("");
+   const [inputField2, setInputField2] = React.useState("");
 
 
    const [fieldValue, setFieldValue] = React.useState("");
@@ -74,19 +74,9 @@ const AllObjects = () => {
     setPage(0);
   };
 
-  useEffect(()=>{
-      let obj =objectTypes && objectTypes.length>0 && objectTypes.map((a)=>{
-         if(a.objectTypeId.toString()==="1" || a.objectTypeId.toString()==="2" || a.objectTypeId.toString()==="6"){
-          return "";
-         }
-         return {
-          objectTypeId:a.objectTypeId,
-          objectTypeName:a.objectTypeName,
-        }
-        
-      }).filter(a => a!=="");
-          setobjType(obj);
-  },[]);
+  console.log(fieldValue);
+  console.log(inputFieldValue);
+
   useEffect(()=>{
     let at= objects && objects.length>0 && objects.map(a => {
       if(objecttypeId!=="" && objecttypeId){
@@ -123,21 +113,43 @@ const AllObjects = () => {
     if(objectType.objectTypeName ===""){
         return toast.error("objectType field is required");
     }
-    else if(object.objectName==="" ){
+    else if(object.objectName===""){
       return toast.error("object field is required");
     }else if(Field==="" ){
       return toast.error("Field Name  is required");
     }else if(fieldOperator===""){
       return toast.error("field Operator  is required");
-    }else if(fieldValue===""){
+    }else if(fieldValue===null && inputFieldValue===""){
       return toast.error("fieldValue field is required");
     }
+    if(fieldOperator3==="" && (Field2!=="" || fieldOperator2!=="" || fieldValue2!=="" || fieldValue2!=="")){
+      console.log(fieldOperator3);
+      return toast.error("Please select first && ||");
+    }
+    if(fieldOperator3!==""){
+      if(Field2===""){
+        return toast.error("Second Field Name  is required");
+      }else if(fieldOperator2===""){
+        return toast.error("Second field Operator  is required");
+      }else if(fieldValue2===null && inputFieldValue2===""){
+        return toast.error("Second field Value  is required");
+      }else{
+        await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator,fieldValue:inputFieldValue,conj:fieldOperator3,FieldName2:Field2,Oper2:fieldOperator2,fieldValue2:inputFieldValue2}));
+      }
+    }
     else {
-        await dispatch(searchObjectByFieldValue({
-          objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator ,fieldValue:fieldValue}));
+        await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator ,fieldValue:inputFieldValue,conj:fieldOperator3,FieldName2:Field2,Oper2:fieldOperator2,fieldValue2:inputFieldValue2}));
       }
    }
+   console.log(fieldOperator3);
   const handleButtons=()=>{
+    setFieldOperator2("");
+    setInputFieldValue2("");
+    setFieldValue2("");
+    setFieldOperator3("");
+    setInputFieldOperator3("");
+    setField2("");
+    setInputField2("");
     setAddField(!addField);
   }
 
@@ -146,7 +158,7 @@ const AllObjects = () => {
     height: '100px', // Adjust to your desired height
   };
 
-  console.log(objt);
+ 
 
   return (
     <>
@@ -197,13 +209,23 @@ const AllObjects = () => {
           setObjectType(newValue);
         }}
         getOptionLabel={(option) => (option.objectTypeName ? option.objectTypeName : "")}
-       
+        freeSolo
         inputValue={inputObjectType}
         onInputChange={(event, newInputValue) => {
           setInputObjectType(newInputValue);
         }}
+        setCustomKey={option => option.objectTypeId + option.objectTypeName}
         id="controllable-states-demo"
-        options={objType  || []}
+        options={objectTypes && objectTypes.length>0 && objectTypes.map((a)=>{
+          if(a.objectTypeId.toString()==="1" || a.objectTypeId.toString()==="2" || a.objectTypeId.toString()==="6"){
+           return "";
+          }
+          return {
+           objectTypeId:a.objectTypeId,
+           objectTypeName:a.objectTypeName,
+         }
+         
+       }).filter(a => a!=="")  || []}
         sx={{ width: 250 }}
         renderInput={(params) => <TextField {...params} label="Objects Type" />}
       />
@@ -216,7 +238,8 @@ const AllObjects = () => {
           setObjectId(newValue?.objectId)
           setObject(newValue);
         }}
-       
+        freeSolo
+        setCustomKey={option => option.objectId + option.objectName}
         getOptionLabel={(option) =>(option.objectName ? option.objectName : "")}
         inputValue={inputObject}
         onInputChange={(event, newInputValue) => {
@@ -236,7 +259,9 @@ const AllObjects = () => {
           console.log(newValue);
           setField(newValue);
         }}
+        freeSolo
         inputValue={inputField}
+        setCustomKey={option => option}
       //  getOptionLabel={(option) =>(option.fieldName ? option.fieldName : "")}
         onInputChange={(event, newInputValue) => {
          setInputField(newInputValue);
@@ -255,6 +280,8 @@ const AllObjects = () => {
           console.log(newValue);
            setFieldOperator(newValue);
         }}
+        freeSolo
+        setCustomKey={option => option.index}
         //getOptionLabel={(option) =>(option ? option.objectName : "")}
         inputValue={inputfieldOperator}
         onInputChange={(event, newInputValue) => {
@@ -273,6 +300,8 @@ const AllObjects = () => {
         onChange={(event, newValue) => {
           setFieldValue(newValue);
         }}
+        freeSolo
+        setCustomKey={option => option}
         inputValue={inputFieldValue}
         onInputChange={(event, newInputValue) => {
          setInputFieldValue(newInputValue);
@@ -285,7 +314,7 @@ const AllObjects = () => {
           return a[Field];
         }).filter(a=>a!=="") || []}
         sx={{ width: 250 }}
-        renderInput={(params) => <TextField {...params} label="Field Name" />}
+        renderInput={(params) => <TextField {...params} label="Field Value" />}
       />
   </Grid>
 }
@@ -296,6 +325,8 @@ const AllObjects = () => {
           console.log(newValue);
            setFieldOperator3(newValue);
         }}
+        setCustomKey={option => option}
+        freeSolo
         //getOptionLabel={(option) =>(option ? option.objectName : "")}
         inputValue={inputfieldOperator3}
         onInputChange={(event, newInputValue) => {
@@ -304,7 +335,7 @@ const AllObjects = () => {
         id="controllable-states-demo"
         options={operator1 || []}
         sx={{ width: 250 }}
-        renderInput={(params) => <TextField {...params} label="Operator" />}
+        renderInput={(params) => <TextField {...params} label="&& , || " />}
       />
   </Grid>
 }
@@ -317,6 +348,8 @@ const AllObjects = () => {
         console.log(newValue);
         setField2(newValue);
       }}
+      freeSolo
+      setCustomKey={option => option}
       inputValue={inputField2}
     //  getOptionLabel={(option) =>(option.fieldName ? option.fieldName : "")}
       onInputChange={(event, newInputValue) => {
@@ -336,8 +369,10 @@ const AllObjects = () => {
           console.log(newValue);
            setFieldOperator2(newValue);
         }}
+        freeSolo
         //getOptionLabel={(option) =>(option ? option.objectName : "")}
         inputValue={inputfieldOperator2}
+        setCustomKey={option => option}
         onInputChange={(event, newInputValue) => {
          setInputFieldOperator2(newInputValue);
         }}
@@ -355,6 +390,8 @@ const AllObjects = () => {
           setFieldValue2(newValue);
         }}
         inputValue={inputFieldValue2}
+        freeSolo
+        setCustomKey={option => option}
         onInputChange={(event, newInputValue) => {
          setInputFieldValue2(newInputValue);
         }}
@@ -379,7 +416,7 @@ const AllObjects = () => {
  </Grid>
  <div style={{ height: 350, width: '100%' ,marginTop:"20px"}}>
       {
-         objLoadding === true ?  <div style={{marginLeft:"400px"}}> <Loader/></div> : searchObjects && searchObjects.length>0?(
+         objLoadding === true ?  <div style={{marginLeft:"400px"}}> <Loader/></div> :searchObjects && searchObjects.length>0?  searchObjects && searchObjects.length>0? <>
           <Grid  spacing={3}>
             <Grid item xs={12} className="w-[80%]" style={{ maxWidth:"90%" ,padding:"10px",marginTop:"20px",backgroundColor:colors.blueAccent[900]}}>
             <Paper sx={{ width: '100%', overflow: 'hidden' }}>
@@ -404,8 +441,9 @@ const AllObjects = () => {
                    <TableBody>
                     
                    {
-                    searchObjects && searchObjects?.length>0 && searchObjects.map((data)=>(
+                    searchObjects && searchObjects.length>0 && searchObjects.slice && searchObjects.map &&  searchObjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((data)=>(
                       <TableRow
+                      key={data?.id}
                       style={{
                         backgroundColor:colors.blueAccent[900]
                        }}
@@ -427,7 +465,7 @@ const AllObjects = () => {
                 style={{
                   backgroundColor:colors.blueAccent[700]
                  }}
-                    rowsPerPageOptions={[10, 25, 100]}
+                    rowsPerPageOptions={[5,10, 25, 100]}
                     component="div"
                     count={searchObjects?.length}
                     rowsPerPage={rowsPerPage}
@@ -438,15 +476,17 @@ const AllObjects = () => {
               </Paper>
             </Grid>
           </Grid>
-         ): <Alert severity="error">Objects Doesn't  Found ...</Alert>
+          <Alert severity={Array.isArray(searchObjects) && searchObjects.length>0 ? "success":"error"} style={{
+          width:"90%"
+        }}>object {Array.isArray(searchObjects)? searchObjects?.length :"0"} Records Found ...</Alert></>: <Alert severity={Array.isArray(searchObjects) && searchObjects.length>0 ? "success":"error"} style={{
+          width:"90%"
+        }}> object {Array.isArray(searchObjects)? searchObjects?.length :"0"} Records Found ...</Alert>:<Alert severity="info"> Please Select All fiels  ...</Alert> 
       } 
-      <Alert severity="success" style={{
-        width:"90%"
-      }}>object {searchObjects?.length} Records Found ...</Alert>
-  </div>
+     
+        </div>
       </Box>
     </Box>)
-}
+   }
   </>
   );
 };

@@ -23,7 +23,8 @@ const getObjectStruture = async (objectId) => {
 
 const searchObject = async (data) => {
   console.log(data);
-  const reponces = await axios.get(`https://localhost:7241/searchObject?objectName=${data.objectName}&objectType=${data.objectType}&FieldName=${data.FieldName}&FieldValue=${data.fieldValue}&Oper=${data.Oper}`);
+   const reponces = await axios.get(`https://localhost:7241/searchObject?objectName=${data.objectName}&objectType=${data.objectType}&FieldName=${data.FieldName}&FieldValue=${data.fieldValue}&Oper=${data.Oper}&conj=${data.conj}&FieldName2=${data.FieldName2}&FieldValue2=${data.fieldValue2}&Oper2=${data.Oper2}`);
+
   console.log(reponces.data);
   return reponces.data;
 };

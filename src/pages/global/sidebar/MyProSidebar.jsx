@@ -49,7 +49,7 @@ const MyProSidebar = () => {
       sx={{
         position: "sticky",
         display: "flex",
-        height: "100vh",
+        height: "120vh",
         top: 0,
         bottom: 0,
         zIndex: 10000,

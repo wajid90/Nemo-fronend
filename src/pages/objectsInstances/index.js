@@ -5,7 +5,7 @@ import { tokens } from "../../theme";
 import { mockDataInvoices } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import {  getObjectInstance  } from "../../redux/Instance/instanceSlice";
+import {  getInstanceByObjectName, getObjectInstance  } from "../../redux/Instance/instanceSlice";
 import { useParams } from "react-router-dom";
 import { DatePicker } from "@mui/x-date-pickers";
 import { Search } from "@mui/icons-material";
@@ -21,7 +21,7 @@ const ObjectInstance = () => {
   const colors = tokens(theme.palette.mode);
   const {isLoadding:objLoadding,objects}=useSelector((state)=>state.objects);
   const {isLoadding:typeLoadding,objectTypes}=useSelector((state)=>state.types);
-  const {isLoadding:instLoadding,ObjectInstances}=useSelector((state)=>state.instances);
+  const {isLoadding:instLoadding,objectInstance}=useSelector((state)=>state.instances);
 
   const dispatch=useDispatch();
 
@@ -37,6 +37,8 @@ const ObjectInstance = () => {
   const [inputObject, setInputObject] = React.useState("");
 
   const [obj, setObj] = React.useState([]);
+  const [objName, setObjName] = React.useState("");
+
 
 
   
@@ -54,20 +56,20 @@ const ObjectInstance = () => {
   const [inputCreatedBy, setInputCreatedBy] = React.useState("");
 
 
-  useMemo(()=>{
-   // dispatch(getAllObjectTypes());
-    let obj =objectTypes && objectTypes.length>0 && objectTypes.map((a)=>{
-       if(a.objectTypeId.toString()==="1" || a.objectTypeId.toString()==="2" || a.objectTypeId.toString()==="6"){
-        return "";
-       }
-       return {
-        objectTypeId:a.objectTypeId,
-        objectTypeName:a.objectTypeName,
-      }
+  // useMemo(()=>{
+  //  // dispatch(getAllObjectTypes());
+  //   let obj =objectTypes && objectTypes.length>0 && objectTypes.map((a)=>{
+  //      if(a.objectTypeId.toString()==="1" || a.objectTypeId.toString()==="2" || a.objectTypeId.toString()==="6"){
+  //       return "";
+  //      }
+  //      return {
+  //       objectTypeId:a.objectTypeId,
+  //       objectTypeName:a.objectTypeName,
+  //     }
       
-    }).filter(a => a!=="");
-        setobjType(obj);
-  },[]);
+  //   }).filter(a => a!=="");
+  //       setobjType(obj);
+  // },[]);
   useEffect(()=>{
    let at= objects && objects.length>0 && objects.map(a => {
      //console.log(a.objectValueType +" "+objecttypeId);
@@ -100,9 +102,10 @@ const ObjectInstance = () => {
 
    const getInstanceHandler=async()=>{
     if(objId !==""){
-        await dispatch(getObjectInstance(objId));
+        await dispatch(getInstanceByObjectName(objId));
     }
    }
+   console.log(objId);
   const columns = [
     { field: "InstanceId", headerName: "Instance Id" },
     {
@@ -177,11 +180,21 @@ const ObjectInstance = () => {
         }}
         getOptionLabel={(option) => (option ? option.objectTypeName : "")}
         inputValue={inputObjectType}
+        setCustomKey={option => option.objectTypeId + option.objectTypeName}
         onInputChange={(event, newInputValue) => {
           setInputObjectType(newInputValue);
         }}
         id="controllable-states-demo"
-        options={objType  || []}
+        options={objectTypes && objectTypes.length>0 && objectTypes.map((a)=>{
+          if(a.objectTypeId.toString()==="1" || a.objectTypeId.toString()==="2" || a.objectTypeId.toString()==="6"){
+           return "";
+          }
+          return {
+           objectTypeId:a.objectTypeId,
+           objectTypeName:a.objectTypeName,
+         }
+         
+       }).filter(a => a!=="")  || []}
         sx={{ width: 250 }}
         renderInput={(params) => <TextField {...params} label="Objects Type" />}
       />
@@ -192,8 +205,10 @@ const ObjectInstance = () => {
         value={object}
         onChange={(event, newValue) => {
           setObjectId(newValue?.objectId)
+          setObjName(newValue?.objectName);
           setObject(newValue);
         }}
+        setCustomKey={option => option.objectId + option.objectName}
         getOptionLabel={(option) =>(option ? option.objectName : "")}
         inputValue={inputObject}
         onInputChange={(event, newInputValue) => {
@@ -251,8 +266,7 @@ const ObjectInstance = () => {
  </Grid>
       <div style={{ height: 350, width: '100%' ,marginTop:"20px"}}>
         {
-          instLoadding === true ?  <div style={{marginLeft:"400px"}}> <Loader/></div> : ObjectInstances.length>0  ? ObjectInstances && ObjectInstances.length>0 ? <><DataGrid getRowId={(row) => row.InstanceId}  rows={ObjectInstances} columns={columns} /><Alert severity="success">{ObjectInstances?.length} Object Instances   Found ...</Alert></>:  <Alert severity="error">Intances Doesn't  Found ...</Alert> :<Alert severity="info"> Please Select Object  ...</Alert> 
-        
+          instLoadding === true ?  <div style={{marginLeft:"400px"}}> <Loader/></div> : objectInstance.length>0  ? objectInstance && objectInstance.length>0 ? <><DataGrid getRowId={(row) => row.InstanceId}  rows={objectInstance} columns={columns} /><Alert severity="success">{objectInstance?.length} Object Instances   Found ...</Alert></>:  <Alert severity="error">Intances Doesn't  Found ...</Alert> :<Alert severity="info"> Please Select Object  ...</Alert> 
         }
         
       </div>
