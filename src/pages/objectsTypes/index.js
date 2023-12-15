@@ -1,12 +1,10 @@
 import React, { useEffect } from "react";
-import { Box, CircularProgress, Typography, useTheme } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { mockDataInvoices } from "../../data/mockData";
 
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllObjectTypes } from "../../redux/Type/typeSlice";
 import Loader from "../../components/Loader";
 
 const AllObjectsTypes = () => {
@@ -14,10 +12,6 @@ const AllObjectsTypes = () => {
   const colors = tokens(theme.palette.mode);
   const dispatch=useDispatch();
   const {isLoadding,objectTypes,isSuccess,isError}=useSelector((state)=>state.types);
-  const customStyle = {
-    width: '100px', // Adjust to your desired width
-    height: '100px', // Adjust to your desired height
-  };
 
   const columns = [
     { field: "objectTypeId", headerName: "Object Type Id" },

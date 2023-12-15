@@ -1,22 +1,18 @@
 import React, { useEffect, useMemo } from "react";
-import { Alert, Autocomplete, Box, Button, CircularProgress,Grid,Paper,Table,TableBody,TableCell,TableContainer,TableHead,TablePagination,TableRow,TextField,Typography, useTheme} from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { Alert, Autocomplete, Box, Button,Grid,Paper,Table,TableBody,TableCell,TableContainer,TableHead,TablePagination,TableRow,TextField,Typography, useTheme} from "@mui/material";
 import { tokens } from "../../theme";
-import { mockDataInvoices } from "../../data/mockData";
 
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { getObjectStrutureByObjectId, searchObjectByFieldValue} from "../../redux/objectSlice";
-import { Link } from "react-router-dom";
 import { DatePicker } from "@mui/x-date-pickers";
 import { Search } from "@mui/icons-material";
 import Loader from "../../components/Loader";
-import { getAllObjectTypes } from "../../redux/Type/typeSlice";
 import { getObjectInstance } from "../../redux/Instance/instanceSlice";
 import toast from "react-hot-toast";
 
 var operator=["=","<",">","<=",">=","Like"];
-var operator1=["And","Or"];
+var operator1=["ALL","AND","ANY","BETWEEN","EXISTS","IN","NOT","OR","SOME"];
 
 //let obj=[];
 
@@ -152,13 +148,6 @@ const AllObjects = () => {
     setInputField2("");
     setAddField(!addField);
   }
-
-  const customStyle = {
-    width: '100px', // Adjust to your desired width
-    height: '100px', // Adjust to your desired height
-  };
-
- 
 
   return (
     <>

@@ -1,18 +1,15 @@
 import React, { useEffect, useMemo } from "react";
-import { Alert, Autocomplete, Box, Button, CircularProgress, Grid, TextField, Typography, useTheme } from "@mui/material";
+import { Alert, Autocomplete, Box, Button, Grid, TextField, useTheme } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { mockDataInvoices } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import {  getInstanceByObjectName, getObjectInstance  } from "../../redux/Instance/instanceSlice";
+import {  getInstanceByObjectName  } from "../../redux/Instance/instanceSlice";
 import { useParams } from "react-router-dom";
 import { DatePicker } from "@mui/x-date-pickers";
 import { Search } from "@mui/icons-material";
 import Loader from "../../components/Loader";
 
-//
-//var objType=["option1","option2"];
 
 const options=["option1","option2"];
 
@@ -56,20 +53,6 @@ const ObjectInstance = () => {
   const [inputCreatedBy, setInputCreatedBy] = React.useState("");
 
 
-  // useMemo(()=>{
-  //  // dispatch(getAllObjectTypes());
-  //   let obj =objectTypes && objectTypes.length>0 && objectTypes.map((a)=>{
-  //      if(a.objectTypeId.toString()==="1" || a.objectTypeId.toString()==="2" || a.objectTypeId.toString()==="6"){
-  //       return "";
-  //      }
-  //      return {
-  //       objectTypeId:a.objectTypeId,
-  //       objectTypeName:a.objectTypeName,
-  //     }
-      
-  //   }).filter(a => a!=="");
-  //       setobjType(obj);
-  // },[]);
   useEffect(()=>{
    let at= objects && objects.length>0 && objects.map(a => {
      //console.log(a.objectValueType +" "+objecttypeId);
