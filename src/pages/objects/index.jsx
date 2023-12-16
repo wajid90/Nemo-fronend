@@ -14,7 +14,6 @@ import toast from "react-hot-toast";
 var operator=["=","<",">","<=",">=","Like"];
 var operator1=["ALL","AND","ANY","BETWEEN","EXISTS","IN","NOT","OR","SOME"];
 
-//let obj=[];
 
 const AllObjects = () => {
   const theme = useTheme();
@@ -193,7 +192,6 @@ const AllObjects = () => {
   <Autocomplete
         value={objectType}
         onChange={(event, newValue) => {
-       //   console.log(newValue);
           setObjectTypeId(newValue?.objectTypeId);
           setObjectType(newValue);
         }}
@@ -271,7 +269,6 @@ const AllObjects = () => {
         }}
         freeSolo
         setCustomKey={option => option.index}
-        //getOptionLabel={(option) =>(option ? option.objectName : "")}
         inputValue={inputfieldOperator}
         onInputChange={(event, newInputValue) => {
          setInputFieldOperator(newInputValue);

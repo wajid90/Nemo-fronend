@@ -1,124 +1,192 @@
-import React, { useEffect, useMemo } from "react";
-import { Alert, Autocomplete, Box, Button, Grid, TextField, useTheme } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import React, {useEffect, useMemo } from "react";
+import { Alert, Autocomplete, Box, Button,Grid,Table,TableBody,TableCell,TableContainer,TableHead,TablePagination,TableRow,TextField,Typography, useTheme} from "@mui/material";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import {  getInstanceByObjectName  } from "../../redux/Instance/instanceSlice";
-import { useParams } from "react-router-dom";
-import { DatePicker } from "@mui/x-date-pickers";
-import { Search } from "@mui/icons-material";
+import {  getInstanceByObjectName, getObjectInstance  } from "../../redux/Instance/instanceSlice";
+import { Filter1Outlined, Search } from "@mui/icons-material";
 import Loader from "../../components/Loader";
+import Paper from '@mui/material/Paper';
+import InputBase from '@mui/material/InputBase';
+import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import SearchIcon from '@mui/icons-material/Search';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import toast from "react-hot-toast";
+import { getObjectStrutureByObjectId, searchObjectByFieldValue } from "../../redux/objectSlice";
 
 
-const options=["option1","option2"];
+var operator=["=","<",">","<=",">=","Like"];
+var operator1=["ALL","AND","ANY","BETWEEN","EXISTS","IN","NOT","OR","SOME"];
+
 
 const ObjectInstance = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const {isLoadding:objLoadding,objects}=useSelector((state)=>state.objects);
+  const {isLoadding:objLoadding,objects,objectStruture,searchObjects}=useSelector((state)=>state.objects);
   const {isLoadding:typeLoadding,objectTypes}=useSelector((state)=>state.types);
-  const {isLoadding:instLoadding,objectInstance}=useSelector((state)=>state.instances);
-
+  const {isLoadding:instLoadding,ObjectInstances,objectInstance}=useSelector((state)=>state.instances);
   const dispatch=useDispatch();
-
   const [object, setObject] = React.useState("");
- 
+  const [objt, setObjt] = React.useState({});
   const [objecttypeId,setObjectTypeId] = React.useState("");
   const [objId,setObjectId] = React.useState("");
 
-
-  
   const [objType, setobjType] = React.useState([]);
+  const [obj, setobj] = React.useState([]);
 
   const [inputObject, setInputObject] = React.useState("");
-
-  const [obj, setObj] = React.useState([]);
-  const [objName, setObjName] = React.useState("");
-
-
-
-  
 
   const [objectType, setObjectType] = React.useState("");
   const [inputObjectType, setInputObjectType] = React.useState("");
 
-  const [fromDate, setFromDate] = React.useState("");
-  const [toDate, setToDate] = React.useState("");
-  const [createdBy, setCreatedBy] = React.useState("");
-  const [objectCreatedBy, setObjectCreatedBy] = React.useState([]);
+   const [Field, setField] = React.useState("");
+   const [inputField, setInputField] = React.useState("");
+
+   const [chips, setChips] = React.useState([]);
+   const [inputChips, setInputCips] = React.useState("");
+   
+   const [Field2, setField2] = React.useState("");
+   const [inputField2, setInputField2] = React.useState("");
 
 
-  
-  const [inputCreatedBy, setInputCreatedBy] = React.useState("");
+   const [fieldValue, setFieldValue] = React.useState("");
+   const [inputFieldValue, setInputFieldValue] = React.useState("");
+  const [fieldOperator, setFieldOperator] = React.useState("");
+  const [inputfieldOperator, setInputFieldOperator] = React.useState("");
 
+  const [fieldOperator3, setFieldOperator3] = React.useState("");
+  const [inputfieldOperator3, setInputFieldOperator3] = React.useState("");
 
-  useEffect(()=>{
-   let at= objects && objects.length>0 && objects.map(a => {
-     //console.log(a.objectValueType +" "+objecttypeId);
-     if(objecttypeId!=="" && objecttypeId){
-      if(a.objectTypeId.toString()===objecttypeId.toString()){
-        return  {
-          objectId:a.objectId,
-          objectName:a.objectName,
-        };
-      }
-     }  
-     return "";
-   }).filter(a => a!=="");
-  setObj(at);
-  },[objecttypeId]);
+  const [fieldValue2, setFieldValue2] = React.useState("");
+  const [inputFieldValue2, setInputFieldValue2] = React.useState("");
+ const [fieldOperator2, setFieldOperator2] = React.useState("");
+ const [inputfieldOperator2, setInputFieldOperator2] = React.useState("");
 
+  const [addField,setAddField] = React.useState(false);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [open, setOpen] = React.useState(false);
+  const [fullWidth, setFullWidth] = React.useState(true);
+  const [maxWidth, setMaxWidth] = React.useState('md');
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
-  useMemo(()=>{
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
+   useEffect(()=>{
     let at= objects && objects.length>0 && objects.map(a => {
       if(objecttypeId!=="" && objecttypeId){
-       if(a.objectValueType.toString()===objecttypeId.toString() && inputObject.toString()===a.objectName){
-         return  a.createdBy;
+       if(a.objectTypeId.toString()===objecttypeId.toString()){
+         return  {
+           objectId:a.objectId,
+           objectName:a.objectName,
+         };
        }
       }  
       return "";
     }).filter(a => a!=="");
-    setObjectCreatedBy(at);
-   },[objecttypeId,inputObject]);
+    
+   setobj(at);
+   },[objecttypeId]);
 
-   const getInstanceHandler=async()=>{
-    if(objId !==""){
-        await dispatch(getInstanceByObjectName(objId));
+
+
+  useMemo( ()=>{
+    if(objId && objId!==""){
+      dispatch(getObjectStrutureByObjectId(objId));
     }
-   }
-   console.log(objId);
-  const columns = [
-    { field: "InstanceId", headerName: "Instance Id" },
-    {
-      field: "InstanceName",
-      headerName: "Instance Name",
-      width: 200,
-      cellClassName: "name-column--cell",
-    },
-    { field: "Instance Label", headerName: "Instance Label", width: 200 },
-    { field: "MappingId", headerName: "Mapping Id", width: 100 },
-    { field: "ObjectId", headerName: "Object Id", width: 100 },
-    { field: "ParentObjectInstance", headerName: "Parent Object Instance", width: 100 },
-    { field: "IsDeleted", headerName: "Is Deleted", width: 100 },
-    { field: "Latitude", headerName: "Latitude", width: 100 },
-    { field: "Longitude", headerName: "Longitude", width: 100 },
-    { field: "CreatedDate", headerName: "Created Date", width: 100 },
-    { field: "CreatedBy", headerName: "Created By", width: 100 },
-    { field: "EditedDate", headerName: "Edited Date", width: 100 },
-    { field: "EditedBy", headerName: "Edited By", width: 100 },
-    { field: "RelationType", headerName: "Relation Type", width: 100 },
-    { field: "CreatedDate", headerName: "Created Date", width: 100 },
+   },[objId,inputObject]);
+ 
+   const handleClickOpen = () => {
+     setOpen(true);
+   };
+ 
+   const handleClose = () => {
+     setOpen(false);
+   };
+ 
+   const handleMaxWidthChange = (event) => {
+     setMaxWidth(
+       // @ts-expect-error autofill of arbitrary value is not handled.
+       event.target.value,
+     );
+   };
+ 
+   const handleFullWidthChange = (event) => {
+     setFullWidth(event.target.checked);
+   };
+ 
+   
+  useMemo( ()=>{
+    if(Field!=="" &&  objId!==""){
+      dispatch(getObjectInstance(objId));
+    }
   
-  ];
+   },[objId,Field]);
+
+   const searchObjectHandler=async()=>{
+    if(objectType.objectTypeName ===""){
+        return toast.error("objectType field is required");
+    }
+    else if(object.objectName===""){
+      return toast.error("object field is required");
+    }else if(Field==="" ){
+      return toast.error("Field Name  is required");
+    }else if(fieldOperator===""){
+      return toast.error("field Operator  is required");
+    }else if(fieldValue===null && inputFieldValue===""){
+      return toast.error("fieldValue field is required");
+    }
+    if(fieldOperator3==="" && (Field2!=="" || fieldOperator2!=="" || fieldValue2!=="" || fieldValue2!=="")){
+      console.log(fieldOperator3);
+      return toast.error("Please select first && ||");
+    }
+    if(fieldOperator3!==""){
+      if(Field2===""){
+        return toast.error("Second Field Name  is required");
+      }else if(fieldOperator2===""){
+        return toast.error("Second field Operator  is required");
+      }else if(fieldValue2===null && inputFieldValue2===""){
+        return toast.error("Second field Value  is required");
+      }else{
+        await handleClose(true);
+        await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator,fieldValue:inputFieldValue,conj:fieldOperator3,FieldName2:Field2,Oper2:fieldOperator2,fieldValue2:inputFieldValue2}));
+      }
+    }
+    else {
+       await handleClose(true);
+        await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator ,fieldValue:inputFieldValue,conj:fieldOperator3,FieldName2:Field2,Oper2:fieldOperator2,fieldValue2:inputFieldValue2}));
+      }
+   }
+   console.log(fieldOperator3);
+  const handleButtons=()=>{
+    setFieldOperator2("");
+    setInputFieldValue2("");
+    setFieldValue2("");
+    setFieldOperator3("");
+    setInputFieldOperator3("");
+    setField2("");
+    setInputField2("");
+    setAddField(!addField);
+  }
 
   //
   return (
     <>
     {(<Box  ml="20px"  mr="20px" mb="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="Objects Instances" subtitle="Objects Instances" />
+        <Header title="Data Table" subtitle="Data Table" />
       </Box>
       <Box
         m="8px 0 0 0"
@@ -152,17 +220,56 @@ const ObjectInstance = () => {
           },
         }}
       >
-<Grid container spacing={1} mt={3}>
-{ <Grid item xs={8} sm={6} md={4} lg={3}>
+    <Paper
+      component="form"
+      onClick={handleClickOpen}
+      sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: "80%"  ,mx: "auto" ,mt:"20px",backgroundColor:colors.blueAccent[900]}}
+    >
+      <InputBase
+        sx={{ ml: 1, flex: 1 }}
+        placeholder="Search Objects"
+        inputProps={{ 'aria-label': 'search objects' }}
+      />
+      <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
+        <SearchIcon />
+      </IconButton>
+      <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+      <IconButton type="button" sx={{ p: '10px' }} aria-label="filter">
+        <Filter1Outlined />
+      </IconButton>
+    </Paper>
+    <Dialog
+        fullWidth={fullWidth}
+        maxWidth={maxWidth}
+        open={open}
+        PaperProps={{
+          style: {
+            backgroundColor:colors.blueAccent[900],
+            boxShadow: "none",
+            color:"black"
+          },
+        }}
+        onClose={handleClose}
+      >
+        <DialogTitle sx={{
+          color:"white"
+        }}> select object Type or object Name</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+
+  <Grid container spacing={1} mt={1}>
+{ 
+<Grid item xs={8} sm={6} md={4} lg={4}>
   <Autocomplete
         value={objectType}
         onChange={(event, newValue) => {
-       //   console.log(newValue);
           setObjectTypeId(newValue?.objectTypeId);
           setObjectType(newValue);
         }}
+        freeSolo
         getOptionLabel={(option) => (option ? option.objectTypeName : "")}
         inputValue={inputObjectType}
+        placeholder="Please select Object Type"
         setCustomKey={option => option.objectTypeId + option.objectTypeName}
         onInputChange={(event, newInputValue) => {
           setInputObjectType(newInputValue);
@@ -178,19 +285,19 @@ const ObjectInstance = () => {
          }
          
        }).filter(a => a!=="")  || []}
-        sx={{ width: 250 }}
-        renderInput={(params) => <TextField {...params} label="Objects Type" />}
+        sx={{ width: 250,color:"black" }}
+        renderInput={(params) => <TextField {...params} label="Objects Type"    />}
       />
   </Grid>
 }
- {inputObjectType && objecttypeId!=="" && <Grid item xs={8} sm={6} md={4} lg={3}>
+ {inputObjectType && objecttypeId!=="" && <Grid item xs={8} sm={6} md={4} lg={8}>
     <Autocomplete
         value={object}
         onChange={(event, newValue) => {
           setObjectId(newValue?.objectId)
-          setObjName(newValue?.objectName);
           setObject(newValue);
         }}
+        freeSolo
         setCustomKey={option => option.objectId + option.objectName}
         getOptionLabel={(option) =>(option ? option.objectName : "")}
         inputValue={inputObject}
@@ -200,59 +307,288 @@ const ObjectInstance = () => {
         }}
         id="controllable-states-demo"
         options={obj || []}
-        sx={{ width: 250 }}
-        renderInput={(params) => <TextField {...params} label="Objects" />}
+        sx={{ width: 250,color: colors.blueAccent[800]}}
+        renderInput={(params) => <TextField {...params} label="Objects"  />}
       />
   </Grid>
 }
-{/* {
-  inputObject!=="" && <Grid item xs={8} sm={6} md={4} lg={3}> 
-  <DatePicker
-   label="From Date"
-   value={fromDate}
-   onChange={(newDueDate) => setFromDate(newDueDate)}
-   />
-   </Grid>
-} 
-{
-  inputObject!=="" &&   <Grid item xs={8} sm={6} md={4} lg={3}>
-  <DatePicker
-  slotProps={{ textField: { size: 'medium' } }}
-  label="to Date"
-  value={toDate}
-  onChange={(newDueDate) => setToDate(newDueDate)}
-/>
-  </Grid> 
-} */}
-{
-  toDate &&<Grid item xs={8} sm={6} md={4} lg={3}>
-  <Autocomplete
-        value={createdBy}
+
+{/* ==== add field === */}
+
+{  inputObject && objId!=="" && <>
+<DialogTitle style={{
+  width: '100%',
+  color: "white"
+}}> select field Name or Values</DialogTitle> 
+<Grid item xs={8} sm={6} md={4} lg={4}>
+    <Autocomplete
+        value={Field}
         onChange={(event, newValue) => {
-          setCreatedBy(newValue);
+         // console.log(newValue);
+          setField(newValue);
         }}
-        inputValue={inputCreatedBy}
+        freeSolo
+        inputValue={inputField}
+        setCustomKey={option => option}
         onInputChange={(event, newInputValue) => {
-          setInputCreatedBy(newInputValue);
+         setInputField(newInputValue);
         }}
         id="controllable-states-demo"
-        options={objectCreatedBy}
+        options={ objectStruture  || []}
         sx={{ width: 250 }}
-        renderInput={(params) => <TextField {...params} label="Created By" />}
+        renderInput={(params) => <TextField {...params} label="Field Name"   />}
+      />
+  </Grid></>
+}
+{  inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={4}>
+    <Autocomplete
+        value={fieldOperator}
+        onChange={(event, newValue) => {
+          console.log(newValue);
+           setFieldOperator(newValue);
+        }}
+        freeSolo
+        setCustomKey={option => option.index}
+        inputValue={inputfieldOperator}
+        onInputChange={(event, newInputValue) => {
+         setInputFieldOperator(newInputValue);
+        }}
+        id="controllable-states-demo"
+        options={operator || []}
+        sx={{ width: 250 }}
+        renderInput={(params) => <TextField {...params} label="Operator"   />}
       />
   </Grid>
 }
-<Grid item>
-<Button onClick={getInstanceHandler} variant="solid" size="large" endIcon={<Search />} sx={{padding:"15px",backgroundColor:colors.greenAccent[500]}}>Search</Button>
+{  inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={4}>
+    <Autocomplete
+        value={fieldValue}
+        onChange={(event, newValue) => {
+          setFieldValue(newValue);
+        }}
+        freeSolo
+        setCustomKey={option => option}
+        inputValue={inputFieldValue}
+        onInputChange={(event, newInputValue) => {
+         setInputFieldValue(newInputValue);
+        }}
+        id="controllable-states-demo"
+        options={ ObjectInstances && ObjectInstances.length>0 && ObjectInstances.map((a)=> {
+          if(a[Field]==null){
+            return "";
+          }
+          return a[Field];
+        }).filter(a=>a!=="") || []}
+        sx={{ width: 250 }}
+        renderInput={(params) => <TextField {...params} label="Field Value"  />}
+      />
+  </Grid>
+}
+{  addField===true && inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={4}>
+    <Autocomplete
+        value={fieldOperator3}
+        onChange={(event, newValue) => {
+          console.log(newValue);
+           setFieldOperator3(newValue);
+        }}
+        setCustomKey={option => option}
+        freeSolo
+        //getOptionLabel={(option) =>(option ? option.objectName : "")}
+        inputValue={inputfieldOperator3}
+        onInputChange={(event, newInputValue) => {
+         setInputFieldOperator3(newInputValue);
+        }}
+        id="controllable-states-demo"
+        options={operator1 || []}
+        sx={{ width: 250 }}
+        renderInput={(params) => <TextField {...params} label="&& , || "   />}
+      />
+  </Grid>
+}
+
+{
+  addField===true  && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={4}>
+  <Autocomplete
+      value={Field2}
+      onChange={(event, newValue) => {
+        console.log(newValue);
+        setField2(newValue);
+      }}
+      freeSolo
+      setCustomKey={option => option}
+      inputValue={inputField2}
+    //  getOptionLabel={(option) =>(option.fieldName ? option.fieldName : "")}
+      onInputChange={(event, newInputValue) => {
+       setInputField2(newInputValue);
+      }}
+      id="controllable-states-demo"
+      options={ objectStruture && objectStruture.length>0 && objectStruture.map((a)=> a.fieldName) || []}
+      sx={{ width: 250 }}
+      renderInput={(params) => <TextField {...params} label="Field Name"   />}
+    />
+</Grid>
+}
+{  addField===true && inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={4}>
+    <Autocomplete
+        value={fieldOperator2}
+        onChange={(event, newValue) => {
+          console.log(newValue);
+           setFieldOperator2(newValue);
+        }}
+        freeSolo
+        //getOptionLabel={(option) =>(option ? option.objectName : "")}
+        inputValue={inputfieldOperator2}
+        setCustomKey={option => option}
+        onInputChange={(event, newInputValue) => {
+         setInputFieldOperator2(newInputValue);
+        }}
+        id="controllable-states-demo"
+        options={operator || []}
+        sx={{ width: 250 }}
+        renderInput={(params) => <TextField {...params} label="Operator"  />}
+      />
+  </Grid>
+}
+{ addField===true && inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={4}>
+    <Autocomplete
+        value={fieldValue2}
+        onChange={(event, newValue) => {
+          setFieldValue2(newValue);
+        }}
+        inputValue={inputFieldValue2}
+        freeSolo
+        setCustomKey={option => option}
+        onInputChange={(event, newInputValue) => {
+         setInputFieldValue2(newInputValue);
+        }}
+        id="controllable-states-demo"
+        options={ ObjectInstances && ObjectInstances.length>0 && ObjectInstances.map((a)=> {
+          if(a[Field2]==null){
+            return "";
+          }
+          return a[Field2];
+        }).filter(a=>a!=="") || []}
+        sx={{ width: 250 }}
+        renderInput={(params) => <TextField {...params} label="Field Name"  />}
+      />
+  </Grid>
+
+}
+
+{
+objId!=="" && <>
+<DialogTitle style={{
+  color: "white",
+  width: '100%',
+}}> select Field You wan't inside the table </DialogTitle>
+<Grid item xs={8} sm={6} md={4} lg={4}>
+<Autocomplete
+value={chips}
+multiple
+limitTags={2}
+onChange={(event, newValue) => {
+  console.log(newValue);
+  setChips(newValue);
+}}
+onInputChange={(event, newValue) => {
+  console.log(newValue);
+   setInputCips(newValue);
+}}
+id="multiple-limit"
+options={objectStruture}
+getOptionLabel={(option) => option}
+renderInput={(params) => (
+  <TextField {...params} label="Columns" placeholder="Table Columns" />
+)}
+sx={{ width: '550px' }}
+/> </Grid>
+</>}
+  
 </Grid>
 
- </Grid>
+
+
+</DialogContentText>
+    
+        </DialogContent>
+        <DialogActions>
+        <Button onClick={handleClose} variant="solid" size="large" sx={{padding:"15px",backgroundColor:colors.blueAccent[500],color:"white",":hover":{
+          backgroundColor:colors.blueAccent[500],
+        }}}>Close</Button>
+        <Button onClick={searchObjectHandler} variant="solid" size="large" endIcon={<Search />} sx={{padding:"15px",color:"white",backgroundColor:colors.greenAccent[500],":hover":{
+          backgroundColor:colors.greenAccent[500],
+        }}}>Search</Button>
+        </DialogActions>
+      </Dialog>
+
       <div style={{ height: 350, width: '100%' ,marginTop:"20px"}}>
-        {
-          instLoadding === true ?  <div style={{marginLeft:"400px"}}> <Loader/></div> : objectInstance.length>0  ? objectInstance && objectInstance.length>0 ? <><DataGrid getRowId={(row) => row.InstanceId}  rows={objectInstance} columns={columns} /><Alert severity="success">{objectInstance?.length} Object Instances   Found ...</Alert></>:  <Alert severity="error">Intances Doesn't  Found ...</Alert> :<Alert severity="info"> Please Select Object  ...</Alert> 
-        }
-        
-      </div>
+      {
+         objLoadding === true ?  <div style={{marginLeft:"400px"}}> <Loader/></div> :searchObjects && searchObjects.length>0?  searchObjects && searchObjects.length>0? <>
+          <Grid  spacing={3} mx="auto">
+            <Grid item xs={12} className="w-[80%]" style={{ maxWidth:"90%" ,padding:"10px",marginLeft:"5%",marginRight:"5%", marginTop:"20px",backgroundColor:colors.blueAccent[900]}}>
+            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+             <TableContainer sx={{ maxHeight: 440 }}>
+               <Table stickyHeader aria-label="sticky table" >
+                   <TableHead sx={{
+                    backgroundColor: colors.blueAccent[700]
+                   }}>
+                   <TableRow>
+                     {
+                        chips && chips.length>0 ? chips.map && chips.map((a)=>(<TableCell>{a}</TableCell>)):( objectStruture.map && objectStruture.map((a)=>( <TableCell>{a}</TableCell>)))
+                     }
+                      </TableRow>
+                   </TableHead>
+                   <TableBody>
+                    
+                   {
+                    searchObjects && searchObjects.length>0 && searchObjects.slice && searchObjects.map &&  searchObjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((data)=>(
+                      <TableRow
+                      key={data?.id}
+                      style={{
+                        backgroundColor:colors.blueAccent[900]
+                       }}
+                      >
+                      {
+
+                chips && chips.length!==0 ? chips.map && chips.map((a)=>(
+                    <TableCell>{data[a]}</TableCell>
+                    )
+                ):(
+                  objectStruture && objectStruture.map && objectStruture.map((a)=>( 
+                      <TableCell>{data[a]}</TableCell>
+                      )))
+                      }
+                      </TableRow>
+                     ))
+                    }
+                   </TableBody>
+                  </Table>
+              </TableContainer>
+              <TablePagination
+                style={{
+                  backgroundColor:colors.blueAccent[700]
+                 }}
+                    rowsPerPageOptions={[5,10, 25, 100]}
+                    component="div"
+                    count={searchObjects?.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+              </Paper>
+            </Grid>
+          </Grid>
+          <Alert severity={Array.isArray(searchObjects) && searchObjects.length>0 ? "success":"error"} style={{
+            marginLeft:"5%",marginRight:"5%",
+          width:"90%"
+        }}>object {Array.isArray(searchObjects)? searchObjects?.length :"0"} Records Found ...</Alert></>: <Alert severity={Array.isArray(searchObjects) && searchObjects.length>0 ? "success":"error"} style={{
+          width:"90%",
+          marginLeft:"5%",marginRight:"5%",
+        }}> object {Array.isArray(searchObjects)? searchObjects?.length :"0"} Records Found ...</Alert>:<Alert severity="info"> Please Select All fiels  ...</Alert> 
+      } 
+     
+        </div>
       </Box>
     </Box>)
 }
