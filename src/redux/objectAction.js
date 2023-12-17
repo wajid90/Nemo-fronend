@@ -22,11 +22,23 @@ const getObjectStruture = async (objectId) => {
 };
 
 const searchObject = async (data) => {
-  console.log(data);
-   const reponces = await axios.get(`https://localhost:7241/searchObject?objectName=${data.objectName}&objectType=${data.objectType}&FieldName=${data.FieldName}&FieldValue=${data.fieldValue}&Oper=${data.Oper}&conj=${data.conj}&FieldName2=${data.FieldName2}&FieldValue2=${data.fieldValue2}&Oper2=${data.Oper2}`);
+    if(data.formValues && data.formValues.length>0 && data.formValues[0].newFieldName!==""){
+      let newData=`https://localhost:7241/searchObject?objectName=${data.objectName}&objectType=${data.objectType}&FieldName=${data.FieldName}&FieldValue=${data.fieldValue}&Oper=${data.Oper}&conj=${data.conj}&FieldName2=${data.FieldName2}&FieldValue2=${data.fieldValue2}&Oper2=${data.Oper2}`;
+      for(let i=0;i<data.formValues.length;i++){
+        newData+=`&newConj=${data[i].conj}&newFieldName=${data[i].newFieldName}&newFieldValue=${data[i].newFieldValue}&newOperator=${data[i].newFieldOperator}`
+      }
+      const reponces1 = await axios.get(newData);
+      console.log(reponces1.data);
+      return reponces1.data;
 
-  console.log(reponces.data);
-  return reponces.data;
+    }else{
+      const reponces2 = await axios.get(`https://localhost:7241/searchObject?objectName=${data.objectName}&objectType=${data.objectType}&FieldName=${data.FieldName}&FieldValue=${data.fieldValue}&Oper=${data.Oper}&conj=${data.conj}&FieldName2=${data.FieldName2}&FieldValue2=${data.fieldValue2}&Oper2=${data.Oper2}`);
+      console.log(reponces2.data);
+      return reponces2.data;
+    
+    }
+  
+
 };
 
 

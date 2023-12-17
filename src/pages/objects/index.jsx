@@ -254,7 +254,7 @@ const AllObjects = () => {
          setInputField(newInputValue);
         }}
         id="controllable-states-demo"
-        options={ objectStruture && objectStruture.length>0 && objectStruture.map((a)=> a.fieldName) || []}
+        options={ objectStruture || []}
         sx={{ width: 250 }}
         renderInput={(params) => <TextField {...params} label="Field Name" />}
       />

@@ -1,10 +1,10 @@
-import React, {useEffect, useMemo } from "react";
+import React, {useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Autocomplete, Box, Button,Grid,Table,TableBody,TableCell,TableContainer,TableHead,TablePagination,TableRow,TextField,Typography, useTheme} from "@mui/material";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import {  getInstanceByObjectName, getObjectInstance  } from "../../redux/Instance/instanceSlice";
-import { Filter1Outlined, Search } from "@mui/icons-material";
+import { Add, Filter1Outlined, Remove, RemoveCircleOutline, RemoveFromQueue, Search } from "@mui/icons-material";
 import Loader from "../../components/Loader";
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
@@ -40,10 +40,15 @@ const ObjectInstance = () => {
   const [objType, setobjType] = React.useState([]);
   const [obj, setobj] = React.useState([]);
 
+
   const [inputObject, setInputObject] = React.useState("");
 
   const [objectType, setObjectType] = React.useState("");
   const [inputObjectType, setInputObjectType] = React.useState("");
+  const [objectTypeName, setObjectTypeName] = React.useState("");
+  const [objectName, setObjectName] = React.useState("");
+
+
 
    const [Field, setField] = React.useState("");
    const [inputField, setInputField] = React.useState("");
@@ -53,8 +58,7 @@ const ObjectInstance = () => {
    
    const [Field2, setField2] = React.useState("");
    const [inputField2, setInputField2] = React.useState("");
-
-
+   const [show,setShow]=useState(false);
    const [fieldValue, setFieldValue] = React.useState("");
    const [inputFieldValue, setInputFieldValue] = React.useState("");
   const [fieldOperator, setFieldOperator] = React.useState("");
@@ -74,7 +78,8 @@ const ObjectInstance = () => {
   const [open, setOpen] = React.useState(false);
   const [fullWidth, setFullWidth] = React.useState(true);
   const [maxWidth, setMaxWidth] = React.useState('md');
-
+  const [formValues, setFormValues] = useState([{newConj:"", newFieldName: "",newFieldOperator:"", newFieldValue : ""}]);
+  
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -159,34 +164,61 @@ const ObjectInstance = () => {
         return toast.error("Second field Operator  is required");
       }else if(fieldValue2===null && inputFieldValue2===""){
         return toast.error("Second field Value  is required");
-      }else{
-        await handleClose(true);
-        await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator,fieldValue:inputFieldValue,conj:fieldOperator3,FieldName2:Field2,Oper2:fieldOperator2,fieldValue2:inputFieldValue2}));
-      }
-    }
-    else {
+      }else{ 
+        for(let i=0; i<fieldValue.length;i++){
+              if(formValues[i].newConj==="" && (formValues[i].newFieldValue!=="" || formValues[i].newFieldOperator!=="" || formValues[i].newFieldName!=="")){
+                return toast.error("Please select first && ||");
+              }
+              if(formValues[i].newConj!==""){
+                if(formValues[i].newFieldName===""){
+                  return toast.error("Field Name is required");
+                }else if(formValues[i].newFieldOperator===""){
+                  return toast.error("Second field Operator  is required");
+                }else if(formValues[i].newFieldValue===""){
+                  return toast.error("Second field Value  is required");
+                }
+              }
+             }
+     if(formValues.length>0){
+       await handleClose(true);
+        await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator ,fieldValue:inputFieldValue,conj:fieldOperator3,FieldName2:Field2,Oper2:fieldOperator2,fieldValue2:inputFieldValue2,formValues:formValues}));
+      }else {
        await handleClose(true);
         await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator ,fieldValue:inputFieldValue,conj:fieldOperator3,FieldName2:Field2,Oper2:fieldOperator2,fieldValue2:inputFieldValue2}));
       }
    }
-   console.log(fieldOperator3);
-  const handleButtons=()=>{
-    setFieldOperator2("");
-    setInputFieldValue2("");
-    setFieldValue2("");
-    setFieldOperator3("");
-    setInputFieldOperator3("");
-    setField2("");
-    setInputField2("");
-    setAddField(!addField);
-  }
+  }else{
+    await handleClose(true);
+    await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator ,fieldValue:inputFieldValue,conj:fieldOperator3,FieldName2:Field2,Oper2:fieldOperator2,fieldValue2:inputFieldValue2}));
 
-  //
+  }
+}
+let handleChange = (i, name,value) => {
+    let newFormValues = [...formValues];
+    newFormValues[i][name] = value;
+    setFormValues(newFormValues);
+ }
+    
+let addFormFields = () => {
+    setFormValues([...formValues, {newConj:"", newFieldName: "",newFieldOperator:"", newFieldValue : ""}])
+ }
+
+let removeFormFields = (i) => {
+    let newFormValues = [...formValues];
+    newFormValues.splice(i, 1);
+    setFormValues(newFormValues)
+}
+
+  const ref0=useRef();
+  const ref1=useRef();
+  const ref2=useRef();
+  const ref3=useRef();
+
   return (
     <>
     {(<Box  ml="20px"  mr="20px" mb="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="Data Table" subtitle="Data Table" />
+        <Header title={objectName!==""?objectName :"Data Table"} subtitle={objectTypeName!==""? objectTypeName: "Data Description"} />
       </Box>
       <Box
         m="8px 0 0 0"
@@ -264,6 +296,8 @@ const ObjectInstance = () => {
         value={objectType}
         onChange={(event, newValue) => {
           setObjectTypeId(newValue?.objectTypeId);
+          setObjectTypeName(newValue?.objectTypeName);
+
           setObjectType(newValue);
         }}
         freeSolo
@@ -295,6 +329,8 @@ const ObjectInstance = () => {
         value={object}
         onChange={(event, newValue) => {
           setObjectId(newValue?.objectId)
+          setObjectName(newValue?.objectName)
+
           setObject(newValue);
         }}
         freeSolo
@@ -474,9 +510,107 @@ const ObjectInstance = () => {
   </Grid>
 
 }
+ 
+{  
+show ===true && <>  <DialogTitle style={{
+  color: "white",
+  width: '100%',
+}}> add More Fields ... </DialogTitle> {formValues.map((element, index) => (
+  <>
 
+  <Box  className="" style={{
+    display: "flex",
+    flexWrap: 'wrap',
+  }} key={index}>
+<Grid item xs={8} sm={6} md={4} lg={4}>
+    <Autocomplete
+        name="newConj"
+        ref={ref0}
+        value={element.newConj || ""}
+        
+        onChange={(event, newValue) => {
+          handleChange(index,ref0.current.getAttribute("name"),newValue);
+        }}
+        setCustomKey={option => option}
+        freeSolo
+        id="controllable-states-demo"
+        options={operator1 || []}
+        sx={{ width: 250 ,m:2}}
+        renderInput={(params) => <TextField name="newConj"  {...params} label="&& , || " />}
+      />
+  </Grid>
+  <Grid item xs={8} sm={6} md={4} lg={4}>
+  <Autocomplete
+   name="newFieldName"
+   ref={ref1}
+       value={element.newFieldName || ""}
+       onChange={(event, newValue) => {
+        console.log(ref1.current)
+        handleChange(index,ref1.current.getAttribute("name"),newValue);
+       }}
+      freeSolo
+      
+      setCustomKey={option => option}
+      id="controllable-states-demo"
+      options={ objectStruture || []}
+      sx={{ width: 250  ,m:2}}
+      renderInput={(params) => <TextField {...params} label="Field Name" />}
+    />
+</Grid>
+ <Grid item xs={8} sm={6} md={4} lg={4}>
+    <Autocomplete
+    ref={ref2}
+       name="newFieldOperator"
+       value={element.newFieldOperator || ""}
+       onChange={(event, newValue) => {
+        handleChange(index,ref2.current.getAttribute("name"),newValue);
+       }}
+        freeSolo
+        setCustomKey={option => option}
+        id="controllable-states-demo"
+        options={operator || []}
+        sx={{ width: 250 ,m:2 }}
+        renderInput={(params) => <TextField {...params} label="Operator" />}
+      />
+  </Grid>
+  <Grid item xs={8} sm={6} md={4} lg={4}>
+    <Autocomplete
+          name="newFieldValue"
+          ref={ref3}
+          value={element.newFieldValue || ""}
+          onChange={(event, newValue) => {
+            handleChange(index,ref3.current.getAttribute("name"),newValue);
+          }}
+        freeSolo
+        setCustomKey={option => option}
+        id="controllable-states-demo"
+        options={ ObjectInstances && ObjectInstances.length>0 && ObjectInstances.map((a)=> {
+          if(a[formValues[index].newFieldName]==null){
+            return "";
+          }
+          return a[formValues[index].newFieldName];
+        }).filter(a=>a!=="") || []}
+        sx={{ width: 250  ,m:2}}
+        renderInput={(params) => <TextField {...params} label="Field Value" />}
+
+      />
+  </Grid>
+  <Grid item xs={8} sm={6} md={4} lg={4}>
+  { index===0 ?  <Button className="button add" variant="solid" size="large" endIcon={<RemoveCircleOutline />} sx={{padding:"10px",marginTop:"20px",color:"white",backgroundColor:colors.redAccent[500],":hover":{
+          backgroundColor:colors.redAccent[500],
+        }}} type="button" onClick={() => setShow(false)}>Remove</Button> : null  }
+  </Grid>
+  <Grid item xs={8} sm={6} md={4} lg={4}>
+  { index ?  <Button className="button add" variant="solid" size="large" endIcon={<RemoveCircleOutline />} sx={{padding:"10px",marginTop:"20px",color:"white",backgroundColor:colors.redAccent[500],":hover":{
+          backgroundColor:colors.redAccent[500],
+        }}} type="button" onClick={() => removeFormFields(index)}>Remove</Button> : null  }
+  </Grid>
+
+  </Box>
+ </>
+  )) }</>}
 {
-objId!=="" && <>
+ <>
 <DialogTitle style={{
   color: "white",
   width: '100%',
@@ -502,12 +636,13 @@ renderInput={(params) => (
 )}
 sx={{ width: '550px' }}
 /> </Grid>
-</>}
+
+
+</>
+
+}
   
 </Grid>
-
-
-
 </DialogContentText>
     
         </DialogContent>
@@ -515,6 +650,14 @@ sx={{ width: '550px' }}
         <Button onClick={handleClose} variant="solid" size="large" sx={{padding:"15px",backgroundColor:colors.blueAccent[500],color:"white",":hover":{
           backgroundColor:colors.blueAccent[500],
         }}}>Close</Button>
+      {
+        show===false ?  <Button className="button add" variant="solid" size="large" endIcon={<Add />} sx={{padding:"15px",color:"white",backgroundColor:colors.greenAccent[800],":hover":{
+          backgroundColor:colors.greenAccent[800],
+        }}} type="button" onClick={() => setShow(true)}>Add Field</Button> : <Button className="button add" variant="solid" size="large" endIcon={<Add />} sx={{padding:"15px",color:"white",backgroundColor:colors.greenAccent[800],":hover":{
+          backgroundColor:colors.greenAccent[800],
+        }}} type="button" onClick={() => addFormFields()}>Add Field</Button>
+      }
+     
         <Button onClick={searchObjectHandler} variant="solid" size="large" endIcon={<Search />} sx={{padding:"15px",color:"white",backgroundColor:colors.greenAccent[500],":hover":{
           backgroundColor:colors.greenAccent[500],
         }}}>Search</Button>

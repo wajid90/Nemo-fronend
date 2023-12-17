@@ -20,6 +20,7 @@ import SwitchRightOutlinedIcon from "@mui/icons-material/SwitchRightOutlined";
 import SwitchLeftOutlinedIcon from "@mui/icons-material/SwitchLeftOutlined";
 import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
 import DataObjectIcon from '@mui/icons-material/DataObject';
+import { DataArray, RecordVoiceOver } from "@mui/icons-material";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -140,9 +141,16 @@ const MyProSidebar = () => {
               Objects
             </Typography>
             <Item
-              title="All Objects"
+              title="All Instances"
               to="/objects"
               icon={<EmojiObjectsIcon  />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="All Records"
+              to="/records"
+              icon={<DataArray  />}
               selected={selected}
               setSelected={setSelected}
             />
@@ -154,7 +162,7 @@ const MyProSidebar = () => {
               setSelected={setSelected}
             />
             <Item
-              title="Objects Instances"
+              title="Search"
               to="/objectIntances"
               icon={<ReceiptOutlinedIcon />}
               selected={selected}

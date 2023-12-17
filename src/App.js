@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {  getObjects } from "./redux/objectSlice.js";
 import {  getAllObjectTypes } from "./redux/Type/typeSlice.js";
+import AllObjectsRecords from "./pages/records/index.js";
 
 
 
@@ -49,6 +50,7 @@ const App = () => {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/objects" element={<AllObjects />} />
                 <Route path="/objectsTypes" element={<AllObjectsTypes />} />
+                <Route path="/records" element={<AllObjectsRecords />} />
                 <Route path="/objectIntances" element={<ObjectInstance />} />
                 <Route path="/form" element={<Form />} /> 
               </Routes>
