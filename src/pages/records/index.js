@@ -44,7 +44,7 @@ const AllObjectsRecords = () => {
        dispatch({
          type:"clearSuccess"
        })
-       
+       dispatch(getObjects());
       }
    },[isError,isSuccess,objData]);
   
@@ -100,7 +100,6 @@ const AllObjectsRecords = () => {
       }))
      
      await handleClose();
-     dispatch(getObjects());
     
   }
     return (
@@ -213,7 +212,7 @@ const AllObjectsRecords = () => {
           setInputObjectType(newInputValue);
         }}
         id="controllable-states-demo"
-        options={objectTypes && objectTypes?.length>0 && objectTypes.map((a)=>{
+        options={objectTypes && objectTypes?.length>0 && objectTypes.map && objectTypes.map((a)=>{
           if(a.objectTypeId.toString()==="1" || a.objectTypeId.toString()==="2" || a.objectTypeId.toString()==="6"){
            return "";
           }
@@ -290,7 +289,7 @@ const AllObjectsRecords = () => {
            <DataGrid getRowId={(row) => row.objectId} paginationModel={{
             pageSize: 5,
             page: 0,
-          }} pageSizeOptions={[5, 10, 25]} rows={objects &&  objects?.length>0 && objects.filter && objects?.filter((a)=>(a.objectName!=="Root" && a.objectName!=="Field" && a.objectName!=="User"))} columns={columns} />
+          }} pageSizeOptions={[5, 10, 25]} rows={objects &&  objects.length>0 && objects.filter && objects?.filter((a)=>(a.objectName!=="Root" && a.objectName!=="Field" && a.objectName!=="User")) || []} columns={columns} />
               </Box>
       </Box>
       </>

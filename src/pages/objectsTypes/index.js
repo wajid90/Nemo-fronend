@@ -82,6 +82,7 @@ const AllObjectsTypes = () => {
      if(isSuccess===true && objType!==null){
       console.log("this is hit now ...");
       toast.success(successMessage);
+      dispatch(getAllObjectTypes());
       dispatch({
         type:"clearSuccess"
       })
@@ -104,7 +105,6 @@ const AllObjectsTypes = () => {
       }))
      
      await handleClose();
-     dispatch(getAllObjectTypes());
     
   }
   return (

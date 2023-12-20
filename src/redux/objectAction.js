@@ -95,8 +95,6 @@ const addObject = async (objectData) => {
   return reponces.data;
 };
 
-
-
 const objectService = {
     getAllObjects,
     getObjectofType,
