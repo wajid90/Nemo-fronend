@@ -79,7 +79,7 @@ const AllObjectsTypes = () => {
           type:"clearError"
          })
      }
-     if(isSuccess===true && successMessage!==""){
+     if(isSuccess===true && objType!==null){
       console.log("this is hit now ...");
       toast.success(successMessage);
       dispatch({
@@ -87,7 +87,7 @@ const AllObjectsTypes = () => {
       })
       
      }
-  },[isError,isSuccess])
+  },[isError,isSuccess,objType])
   const addObjectType=async ()=>{
       console.log("hitt ...");
 

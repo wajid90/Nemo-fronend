@@ -15,6 +15,7 @@ const initialState = {
 };
 
 
+
 export const getAllObjectTypes = createAsyncThunk(
     "objects/all-objectsType",
     async (thunkAPI) => {
@@ -80,6 +81,7 @@ export const typeSlice = createSlice({
         }).addCase("clearSuccess",(state)=>{
           state.successMessage="";
           state.isSuccess=false;
+          state.objectType=null;
         })
         
       }

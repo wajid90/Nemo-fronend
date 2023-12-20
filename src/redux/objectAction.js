@@ -81,11 +81,27 @@ const searchObject = async (data) => {
 
 };
 
+const addObject = async (objectData) => {
+  console.log(objectData);
+  const reponces = await axios.post(`https://localhost:7241/addObject`,JSON.stringify( {
+    "ObjectName":objectData.ObjectName,
+    "ObjectType":objectData.ObjectType,
+    "maxFields":objectData.maxFields,
+    "CreatedBy":objectData.CreatedBy
+  }),{
+  headers:{
+    'Content-Type':'application/json',
+  }});
+  return reponces.data;
+};
+
+
 
 const objectService = {
     getAllObjects,
     getObjectofType,
     getObjectStruture,
-    searchObject
+    searchObject,
+    addObject
 };
 export default objectService;
