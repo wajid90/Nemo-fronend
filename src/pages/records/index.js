@@ -1,17 +1,16 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Box, useTheme } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 
 import Header from "../../components/Header";
-import { useDispatch, useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
 import Loader from "../../components/Loader";
 
 const AllObjectsRecords = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const dispatch=useDispatch();
-  const {isLoadding,objects,isSuccess,isError}=useSelector((state)=>state.objects);
+  const {isLoadding,objects}=useSelector((state)=>state.objects);
 
   const columns = [
     { field: "objectId", headerName: "Id" },
@@ -67,7 +66,10 @@ const AllObjectsRecords = () => {
               }}
             >
       
-              <DataGrid getRowId={(row) => row.objectId}  rows={objects && objects.filter && objects.filter((a)=>(a.objectName!=="Root" && a.objectName!=="Field" && a.objectName!=="User"))} columns={columns} />
+              <DataGrid getRowId={(row) => row.objectId} paginationModel={{
+          pageSize: 5,
+          page: 0,
+        }} pageSizeOptions={[5, 10, 25]} rows={objects &&  objects?.length>0 && objects.filter && objects?.filter((a)=>(a.objectName!=="Root" && a.objectName!=="Field" && a.objectName!=="User"))} columns={columns} />
             </Box>
           </Box>)
             

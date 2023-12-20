@@ -17,25 +17,17 @@ import { useDispatch, useSelector } from "react-redux";
 import {  getObjects } from "./redux/objectSlice.js";
 import {  getAllObjectTypes } from "./redux/Type/typeSlice.js";
 import AllObjectsRecords from "./pages/records/index.js";
+import { useProSidebar } from "react-pro-sidebar";
+import AddObjectsType from "./pages/objectsTypes/addObjectType.js";
 
 
 
 const App = () => {
   const [theme, colorMode] = useMode();
   const dispatch=useDispatch();
-  const {objects} =useSelector((state)=>state.objects);
-  const {objectTypes}=useSelector((state)=>state.types);
   useEffect(()=>{
-    if(!localStorage.getItem("getObjectTypes")){
       dispatch(getAllObjectTypes());
-    }else{
-     localStorage.setItem("getObjectTypes",JSON.stringify(objectTypes));
-    }
-    if(!localStorage.getItem("getAllObjects")){
       dispatch(getObjects());
-    }else{
-      localStorage.setItem("getAllObjects",JSON.stringify(objects));
-    }
   },[]);
   return (
     <ColorModeContext.Provider value={colorMode}>
@@ -43,7 +35,7 @@ const App = () => {
         <CssBaseline />
         <MyProSidebarProvider>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <div style={{ height: "100%", width: "100%" }}>
+          <div style={{ height: "100%", width:  "93%" }}>
             <main>
               <Topbar />
               <Routes>
@@ -52,6 +44,7 @@ const App = () => {
                 <Route path="/objectsTypes" element={<AllObjectsTypes />} />
                 <Route path="/records" element={<AllObjectsRecords />} />
                 <Route path="/objectIntances" element={<ObjectInstance />} />
+                <Route path="/add-object-type" element={<AddObjectsType />} />
                 <Route path="/form" element={<Form />} /> 
               </Routes>
               <Toaster/>

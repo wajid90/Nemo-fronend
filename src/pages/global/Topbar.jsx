@@ -14,10 +14,12 @@ const Topbar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
-  const { toggleSidebar, broken, rtl } = useProSidebar();
+  const { toggleSidebar, broken, rtl ,collapsed} = useProSidebar();
 
   return (
-    <Box display="flex" justifyContent="space-between" p={2}>
+    <Box display="flex" justifyContent="space-between" p={2} style={{
+      width:collapsed ? "102%" :"100%" 
+    }}>
       <Box display="flex">
         {broken && !rtl && (
           <IconButton

@@ -5,7 +5,6 @@ import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { getObjectStrutureByObjectId, searchObjectByFieldValue} from "../../redux/objectSlice";
-import { DatePicker } from "@mui/x-date-pickers";
 import { Search } from "@mui/icons-material";
 import Loader from "../../components/Loader";
 import { getObjectInstance } from "../../redux/Instance/instanceSlice";

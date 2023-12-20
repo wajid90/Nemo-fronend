@@ -1,7 +1,7 @@
-import { createSlice, createAsyncThunk, createAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import objectService from "./objectAction";
 const initialState = {
-  object: JSON.parse(localStorage.getItem('getAllObjects')) || [],
+  object: [],
   objectStruture:[],
   getObjectByType:[],
   searchObjects:[],

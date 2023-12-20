@@ -1,16 +1,15 @@
 import React, {useEffect, useMemo, useRef, useState } from "react";
-import { Alert, Autocomplete, Box, Button,Grid,Table,TableBody,TableCell,TableContainer,TableHead,TablePagination,TableRow,TextField,Typography, useTheme} from "@mui/material";
+import { Alert, Autocomplete, Box, Button,Grid,Table,TableBody,TableCell,TableContainer,TableHead,TablePagination,TableRow,TextField, useTheme} from "@mui/material";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import {  getInstanceByObjectName, getObjectInstance  } from "../../redux/Instance/instanceSlice";
-import { Add, Filter1Outlined, Remove, RemoveCircleOutline, RemoveFromQueue, Search } from "@mui/icons-material";
+import {  getObjectInstance  } from "../../redux/Instance/instanceSlice";
+import { Add, AddBoxOutlined, Filter1Outlined, RemoveCircleOutline, Search } from "@mui/icons-material";
 import Loader from "../../components/Loader";
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -19,6 +18,8 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import toast from "react-hot-toast";
 import { getObjectStrutureByObjectId, searchObjectByFieldValue } from "../../redux/objectSlice";
+import { useProSidebar } from "react-pro-sidebar";
+import { Link } from "react-router-dom";
 
 
 var operator=["=","<",">","<=",">=","Like"];
@@ -28,9 +29,9 @@ var operator1=["ALL","AND","ANY","BETWEEN","EXISTS","IN","NOT","OR","SOME"];
 const ObjectInstance = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const {isLoadding:objLoadding,objects,objectStruture,searchObjects}=useSelector((state)=>state.objects);
+  const {isLoadding:objLoadding,objects,objectStruture,searchObjects,isError}=useSelector((state)=>state.objects);
   const {isLoadding:typeLoadding,objectTypes}=useSelector((state)=>state.types);
-  const {isLoadding:instLoadding,ObjectInstances,objectInstance}=useSelector((state)=>state.instances);
+  const {isLoadding:instLoadding,ObjectInstances}=useSelector((state)=>state.instances);
   const dispatch=useDispatch();
   const [object, setObject] = React.useState("");
   const [objt, setObjt] = React.useState({});
@@ -59,6 +60,8 @@ const ObjectInstance = () => {
    const [Field2, setField2] = React.useState("");
    const [inputField2, setInputField2] = React.useState("");
    const [show,setShow]=useState(false);
+   const [show1,setShow1]=useState(false);
+
    const [fieldValue, setFieldValue] = React.useState("");
    const [inputFieldValue, setInputFieldValue] = React.useState("");
   const [fieldOperator, setFieldOperator] = React.useState("");
@@ -79,6 +82,13 @@ const ObjectInstance = () => {
   const [fullWidth, setFullWidth] = React.useState(true);
   const [maxWidth, setMaxWidth] = React.useState('md');
   const [formValues, setFormValues] = useState([{newConj:"", newFieldName: "",newFieldOperator:"", newFieldValue : ""}]);
+  
+  const ref0=useRef();
+  const ref1=useRef();
+  const ref2=useRef();
+  const ref3=useRef();
+
+  const { collapsed } = useProSidebar();
   
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -140,56 +150,85 @@ const ObjectInstance = () => {
   
    },[objId,Field]);
 
-   const searchObjectHandler=async()=>{
-    if(objectType.objectTypeName ===""){
-        return toast.error("objectType field is required");
-    }
-    else if(object.objectName===""){
-      return toast.error("object field is required");
-    }else if(Field==="" ){
-      return toast.error("Field Name  is required");
-    }else if(fieldOperator===""){
-      return toast.error("field Operator  is required");
-    }else if(fieldValue===null && inputFieldValue===""){
-      return toast.error("fieldValue field is required");
-    }
-    if(fieldOperator3==="" && (Field2!=="" || fieldOperator2!=="" || fieldValue2!=="" || fieldValue2!=="")){
-      console.log(fieldOperator3);
-      return toast.error("Please select first && ||");
-    }
-    if(fieldOperator3!==""){
-      if(Field2===""){
-        return toast.error("Second Field Name  is required");
-      }else if(fieldOperator2===""){
-        return toast.error("Second field Operator  is required");
-      }else if(fieldValue2===null && inputFieldValue2===""){
-        return toast.error("Second field Value  is required");
-      }else{ 
-        for(let i=0; i<fieldValue.length;i++){
-              if(formValues[i].newConj==="" && (formValues[i].newFieldValue!=="" || formValues[i].newFieldOperator!=="" || formValues[i].newFieldName!=="")){
-                return toast.error("Please select first && ||");
-              }
-              if(formValues[i].newConj!==""){
-                if(formValues[i].newFieldName===""){
-                  return toast.error("Field Name is required");
-                }else if(formValues[i].newFieldOperator===""){
-                  return toast.error("Second field Operator  is required");
-                }else if(formValues[i].newFieldValue===""){
-                  return toast.error("Second field Value  is required");
-                }
-              }
-             }
-     if(formValues.length>0){
-       await handleClose(true);
-        await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator ,fieldValue:inputFieldValue,conj:fieldOperator3,FieldName2:Field2,Oper2:fieldOperator2,fieldValue2:inputFieldValue2,formValues:formValues}));
-      }else {
-       await handleClose(true);
-        await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator ,fieldValue:inputFieldValue,conj:fieldOperator3,FieldName2:Field2,Oper2:fieldOperator2,fieldValue2:inputFieldValue2}));
-      }
+   const HandleShow1=()=>{
+    setField("");
+    setInputField("");
+    setFieldOperator("");
+    setInputFieldOperator("");
+    setFieldValue("");
+    setInputFieldValue("");
+    setShow1(false);
    }
-  }else{
-    await handleClose(true);
-    await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator ,fieldValue:inputFieldValue,conj:fieldOperator3,FieldName2:Field2,Oper2:fieldOperator2,fieldValue2:inputFieldValue2}));
+
+   const searchObjectHandler=async ()=>{
+    if(objectType===null){
+      return toast.error("objectType field is required");
+    }
+    else if(object===null){
+      return toast.error("object field is required");
+    }else if(objectType===""){
+      return toast.error("objectType field is required");
+    }
+    else if(object===""){
+      return toast.error("object field is required");
+    }
+    else if(objectType.objectTypeName===""){
+      return toast.error("objectType field is required");
+    }else if(object.objectName===""){
+      return toast.error("object field is required");
+    }
+    else if((Field===""  &&  fieldOperator==="" && fieldValue==="" && inputFieldValue==="") || (Field===null &&  fieldOperator===null && fieldValue===null && inputFieldValue===null)){
+      await handleClose(true);
+      await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:"",Oper:"" ,fieldValue:"",conj:"",FieldName2:"",Oper2:"",fieldValue2:"",formValues:[],fieldData:chips}));
+    }else if((Field!==""  ||  fieldOperator!=="" || fieldValue!=="") && formValues[0].newConj===""){
+      console.log("this is field ....")
+      if(Field===null || Field===""){
+        return toast.error("field Name field is required");
+      }
+      else if(fieldOperator==="" || fieldOperator===null){
+        return toast.error("fieldOperator is required");
+      }else if(fieldValue==="" || fieldValue===null){
+        return toast.error("fieldValue  is required");
+      }
+        await handleClose(true);
+        await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator ,fieldValue:inputFieldValue,conj:"",FieldName2:"",Oper2:"",fieldValue2:"",formValues:[],fieldData:chips}));   
+    }
+    else{ 
+      if(((formValues[0].newConj!=="" || formValues[0].newFieldValue!=="" || formValues[0].newFieldOperator!=="" || formValues[0].newFieldName!=="") && (formValues[0].newConj!==null || formValues[0].newFieldValue!==null || formValues[0].newFieldOperator!==null || formValues[0].newFieldName!==null)) && formValues.length===1){
+        console.log('first else hitt ...');
+        if((formValues[0].newConj==="" || formValues[0].newConj===null) && (formValues[0].newFieldValue!=="" || formValues[0].newFieldOperator!=="" || formValues[0].newFieldName!=="")){
+          return toast.error("Please select first && ||");
+        }
+        if(formValues[0].newFieldName==="" || formValues[0].newFieldName===null){
+            return toast.error("Field Name is required");
+          }else if(formValues[0].newFieldOperator==="" || formValues[0].newFieldOperator===null){
+            return toast.error("field Operator  is required");
+          }else if(formValues[0].newFieldValue==="" || formValues[0].newFieldValue===null){
+            return toast.error("field Value  is required");
+          }
+        await handleClose(true);
+        await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator ,fieldValue:inputFieldValue,conj:formValues[0].newConj,FieldName2:formValues[0].newFieldName,Oper2:formValues[0].newFieldOperator,fieldValue2:formValues[0].newFieldValue,formValues:[],fieldData:chips}));
+ 
+      }else  if(((formValues[0].newConj!=="" || formValues[0].newFieldValue!=="" || formValues[0].newFieldOperator!=="" || formValues[0].newFieldName!=="") && (formValues[0].newConj!==null || formValues[0].newFieldValue!==null || formValues[0].newFieldOperator!==null || formValues[0].newFieldName!==null)) && formValues.length>1){
+        for(let i=0; i<fieldValue.length;i++){
+        if((formValues[i].newConj==="" || formValues[i].newConj===null) && (formValues[i].newFieldValue!=="" || formValues[i].newFieldOperator!=="" || formValues[i].newFieldName!=="")){
+          return toast.error("Please select first && ||");
+        }
+        if(formValues[i].newConj!=="" || formValues[i].newConj!==null){
+          if(formValues[i].newFieldName==="" || formValues[i].newFieldName===null){
+            return toast.error("Field Name is required");
+          }else if(formValues[i].newFieldOperator==="" || formValues[i].newFieldOperator===null){
+            return toast.error("field Operator  is required");
+          }else if(formValues[i].newFieldValue===""  || formValues[i].newFieldValue===null){
+            return toast.error("field Value  is required");
+          }
+        }
+       }
+       await handleClose(true);
+       await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator ,fieldValue:inputFieldValue,conj:formValues[0].newConj,FieldName2:formValues[0].newFieldName,Oper2:formValues[0].newFieldOperator,fieldValue2:formValues[0].newFieldValue,formValues:formValues,fieldData:chips}));   
+   }else if((formValues[0].newConj==="" || formValues[0].newFieldValue==="" || formValues[0].newFieldOperator==="" || formValues[0].newFieldName==="") || (formValues[0].newConj===null || formValues[0].newFieldValue===null || formValues[0].newFieldOperator===null || formValues[0].newFieldName===null))
+   await handleClose(true);
+   await dispatch(searchObjectByFieldValue({objectType:objectType.objectTypeName,objectName:object.objectName ,FieldName:Field,Oper:fieldOperator ,fieldValue:inputFieldValue,conj:formValues[0].newConj,FieldName2:formValues[0].newFieldName,Oper2:formValues[0].newFieldOperator,fieldValue2:formValues[0].newFieldValue,formValues:[],fieldData:chips}));   
 
   }
 }
@@ -208,15 +247,17 @@ let removeFormFields = (i) => {
     newFormValues.splice(i, 1);
     setFormValues(newFormValues)
 }
-
-  const ref0=useRef();
-  const ref1=useRef();
-  const ref2=useRef();
-  const ref3=useRef();
+let handlesetShow=()=>{
+       formValues[0].newConj="";
+       formValues[0].newFieldName="";
+       formValues[0].newFieldOperator="";
+       formValues[0].newFieldValue="";
+       setShow(false);
+}
 
   return (
     <>
-    {(<Box  ml="20px"  mr="20px" mb="20px">
+    {(<Box  ml="10px"  mr="10px" mb="20px" width={"100%"}>
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title={objectName!==""?objectName :"Data Table"} subtitle={objectTypeName!==""? objectTypeName: "Data Description"} />
       </Box>
@@ -252,10 +293,11 @@ let removeFormFields = (i) => {
           },
         }}
       >
+      
     <Paper
       component="form"
       onClick={handleClickOpen}
-      sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: "80%"  ,mx: "auto" ,mt:"20px",backgroundColor:colors.blueAccent[900]}}
+      sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width:collapsed ? "80%" :"70%" ,marginTop:"20px"  ,mx: collapsed ? "auto":"10%" ,mt:"10px",backgroundColor:colors.blueAccent[900]}}
     >
       <InputBase
         sx={{ ml: 1, flex: 1 }}
@@ -324,7 +366,7 @@ let removeFormFields = (i) => {
       />
   </Grid>
 }
- {inputObjectType && objecttypeId!=="" && <Grid item xs={8} sm={6} md={4} lg={8}>
+ {inputObjectType && objecttypeId!=="" && <Grid item xs={8} sm={6} md={4} lg={4}>
     <Autocomplete
         value={object}
         onChange={(event, newValue) => {
@@ -351,12 +393,12 @@ let removeFormFields = (i) => {
 
 {/* ==== add field === */}
 
-{  inputObject && objId!=="" && <>
+{  show1===true && inputObject && objId!=="" && <>
 <DialogTitle style={{
   width: '100%',
   color: "white"
 }}> select field Name or Values</DialogTitle> 
-<Grid item xs={8} sm={6} md={4} lg={4}>
+<Grid item xs={8} sm={6} md={3} lg={3}>
     <Autocomplete
         value={Field}
         onChange={(event, newValue) => {
@@ -371,12 +413,12 @@ let removeFormFields = (i) => {
         }}
         id="controllable-states-demo"
         options={ objectStruture  || []}
-        sx={{ width: 250 }}
+        sx={{ width: 200 }}
         renderInput={(params) => <TextField {...params} label="Field Name"   />}
       />
   </Grid></>
 }
-{  inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={4}>
+{ show1===true && inputObject && objId!=="" && <Grid item xs={8} sm={6} md={3} lg={3}>
     <Autocomplete
         value={fieldOperator}
         onChange={(event, newValue) => {
@@ -391,12 +433,12 @@ let removeFormFields = (i) => {
         }}
         id="controllable-states-demo"
         options={operator || []}
-        sx={{ width: 250 }}
+        sx={{ width: 200 }}
         renderInput={(params) => <TextField {...params} label="Operator"   />}
       />
   </Grid>
 }
-{  inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={4}>
+{ show1===true &&  inputObject && objId!=="" && <Grid item xs={8} sm={6} md={3} lg={3}>
     <Autocomplete
         value={fieldValue}
         onChange={(event, newValue) => {
@@ -415,12 +457,26 @@ let removeFormFields = (i) => {
           }
           return a[Field];
         }).filter(a=>a!=="") || []}
-        sx={{ width: 250 }}
+        sx={{ width: 200 }}
         renderInput={(params) => <TextField {...params} label="Field Value"  />}
       />
   </Grid>
 }
-{  addField===true && inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={4}>
+<Grid item xs={8} sm={6} md={3} lg={2}>
+  { show1===false && <Button className="button add" variant="solid" size="large" endIcon={<AddBoxOutlined />} sx={{width: 200, padding:"10px",marginTop:"5px",color:"white",backgroundColor:colors.greenAccent[500],":hover":{
+          backgroundColor:colors.greenAccent[500],
+        }}} type="button" onClick={() => setShow1(true)}>Add Field</Button>   }
+  </Grid>
+  <Grid item xs={8} sm={6} md={3} lg={2}>
+  {/* { show1===true && show===true && <Button className="button add" variant="solid" size="large" endIcon={<RemoveCircleOutline />} sx={{width: 100,padding:"10px",marginTop:"5px",color:"white",backgroundColor:colors.redAccent[500],":hover":{
+          backgroundColor:colors.redAccent[500],
+        }}} type="button" onClick={() => HandleShow1()}>Remove</Button> 
+ } */}
+  {show1===true && show===false && <Button className="button add" variant="solid" size="large" endIcon={<RemoveCircleOutline />} sx={{width: 100,padding:"10px",marginTop:"5px",color:"white",backgroundColor:colors.redAccent[500],":hover":{
+          backgroundColor:colors.redAccent[500],
+        }}} type="button" onClick={() => HandleShow1()}>Remove</Button>}
+  </Grid>
+{  addField===true && inputObject && objId!=="" && <Grid item xs={8} sm={6} md={4} lg={3}>
     <Autocomplete
         value={fieldOperator3}
         onChange={(event, newValue) => {
@@ -508,8 +564,10 @@ let removeFormFields = (i) => {
         renderInput={(params) => <TextField {...params} label="Field Name"  />}
       />
   </Grid>
+  
 
 }
+
  
 {  
 show ===true && <>  <DialogTitle style={{
@@ -598,7 +656,7 @@ show ===true && <>  <DialogTitle style={{
   <Grid item xs={8} sm={6} md={4} lg={4}>
   { index===0 ?  <Button className="button add" variant="solid" size="large" endIcon={<RemoveCircleOutline />} sx={{padding:"10px",marginTop:"20px",color:"white",backgroundColor:colors.redAccent[500],":hover":{
           backgroundColor:colors.redAccent[500],
-        }}} type="button" onClick={() => setShow(false)}>Remove</Button> : null  }
+        }}} type="button" onClick={() => handlesetShow()}>Remove</Button> : null  }
   </Grid>
   <Grid item xs={8} sm={6} md={4} lg={4}>
   { index ?  <Button className="button add" variant="solid" size="large" endIcon={<RemoveCircleOutline />} sx={{padding:"10px",marginTop:"20px",color:"white",backgroundColor:colors.redAccent[500],":hover":{
@@ -621,11 +679,9 @@ value={chips}
 multiple
 limitTags={2}
 onChange={(event, newValue) => {
-  console.log(newValue);
   setChips(newValue);
 }}
 onInputChange={(event, newValue) => {
-  console.log(newValue);
    setInputCips(newValue);
 }}
 id="multiple-limit"
@@ -651,9 +707,9 @@ sx={{ width: '550px' }}
           backgroundColor:colors.blueAccent[500],
         }}}>Close</Button>
       {
-        show===false ?  <Button className="button add" variant="solid" size="large" endIcon={<Add />} sx={{padding:"15px",color:"white",backgroundColor:colors.greenAccent[800],":hover":{
+        show1===true &&  show===false ?  <Button className="button add" variant="solid" size="large" endIcon={<Add />} sx={{padding:"15px",color:"white",backgroundColor:colors.greenAccent[800],":hover":{
           backgroundColor:colors.greenAccent[800],
-        }}} type="button" onClick={() => setShow(true)}>Add Field</Button> : <Button className="button add" variant="solid" size="large" endIcon={<Add />} sx={{padding:"15px",color:"white",backgroundColor:colors.greenAccent[800],":hover":{
+        }}} type="button" onClick={() => setShow(true)}>Add Field</Button> : show1===true && <Button className="button add" variant="solid" size="large" endIcon={<Add />} sx={{padding:"15px",color:"white",backgroundColor:colors.greenAccent[800],":hover":{
           backgroundColor:colors.greenAccent[800],
         }}} type="button" onClick={() => addFormFields()}>Add Field</Button>
       }
@@ -664,12 +720,12 @@ sx={{ width: '550px' }}
         </DialogActions>
       </Dialog>
 
-      <div style={{ height: 350, width: '100%' ,marginTop:"20px"}}>
+      <div style={{ height: 350, width:collapsed ? "100%" :'90%' ,marginTop:"20px"}}>
       {
-         objLoadding === true ?  <div style={{marginLeft:"400px"}}> <Loader/></div> :searchObjects && searchObjects.length>0?  searchObjects && searchObjects.length>0? <>
-          <Grid  spacing={3} mx="auto">
-            <Grid item xs={12} className="w-[80%]" style={{ maxWidth:"90%" ,padding:"10px",marginLeft:"5%",marginRight:"5%", marginTop:"20px",backgroundColor:colors.blueAccent[900]}}>
-            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+         objLoadding === true ?  <div style={{marginLeft:"400px"}}> <Loader/></div> :searchObjects && searchObjects?.length>0?  searchObjects && searchObjects?.length>0? <>
+          <Grid  spacing={3}  lg={12} mx="auto">
+            <Grid item xs={12} style={{ maxWidth:"100%" ,padding:"10px",marginLeft:"5%",marginRight:"5%", marginTop:"20px",backgroundColor:colors.blueAccent[900]}}>
+            <Paper sx={{ maxWidth: '100%', overflow: 'hidden' }}>
              <TableContainer sx={{ maxHeight: 440 }}>
                <Table stickyHeader aria-label="sticky table" >
                    <TableHead sx={{
@@ -677,14 +733,14 @@ sx={{ width: '550px' }}
                    }}>
                    <TableRow>
                      {
-                        chips && chips.length>0 ? chips.map && chips.map((a)=>(<TableCell>{a}</TableCell>)):( objectStruture.map && objectStruture.map((a)=>( <TableCell>{a}</TableCell>)))
+                        chips && chips.length>0 ? chips.map && chips.map((a)=>(<TableCell style={{border:"0px solid"}}>{a}</TableCell>)):( objectStruture.map && objectStruture.map((a)=>( <TableCell>{a}</TableCell>)))
                      }
                       </TableRow>
                    </TableHead>
                    <TableBody>
                     
                    {
-                    searchObjects && searchObjects.length>0 && searchObjects.slice && searchObjects.map &&  searchObjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((data)=>(
+                    searchObjects && searchObjects?.length>0 && searchObjects?.slice && searchObjects?.map &&  searchObjects?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((data)=>(
                       <TableRow
                       key={data?.id}
                       style={{
@@ -697,7 +753,7 @@ sx={{ width: '550px' }}
                     <TableCell>{data[a]}</TableCell>
                     )
                 ):(
-                  objectStruture && objectStruture.map && objectStruture.map((a)=>( 
+                  objectStruture && objectStruture.map && objectStruture?.map((a)=>( 
                       <TableCell>{data[a]}</TableCell>
                       )))
                       }
@@ -722,13 +778,13 @@ sx={{ width: '550px' }}
               </Paper>
             </Grid>
           </Grid>
-          <Alert severity={Array.isArray(searchObjects) && searchObjects.length>0 ? "success":"error"} style={{
+          <Alert severity={searchObjects?.length===0  && isError===true ? "error" :"success"} style={{
             marginLeft:"5%",marginRight:"5%",
           width:"90%"
-        }}>object {Array.isArray(searchObjects)? searchObjects?.length :"0"} Records Found ...</Alert></>: <Alert severity={Array.isArray(searchObjects) && searchObjects.length>0 ? "success":"error"} style={{
+        }}>object {Array.isArray(searchObjects)? searchObjects?.length :"0"} Records Found ...</Alert></>: <Alert severity={searchObjects?.length===0   && isError===true ? "error" :"success"} style={{
           width:"90%",
           marginLeft:"5%",marginRight:"5%",
-        }}> object {Array.isArray(searchObjects)? searchObjects?.length :"0"} Records Found ...</Alert>:<Alert severity="info"> Please Select All fiels  ...</Alert> 
+        }}> object {Array.isArray(searchObjects)? searchObjects?.length :"0"} Records Found ...</Alert>:<Alert severity={ (searchObjects?.length===0  && isError===true) ? "error" :"info"}>{ (searchObjects?.length===0  && isError===true) ? "Data not found ..." :"Please Select All fiels"} </Alert> 
       } 
      
         </div>
