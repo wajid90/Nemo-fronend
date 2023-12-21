@@ -208,7 +208,7 @@ const AllObjectsTypes = () => {
               color:"white",
               backgroundColor:colors.greenAccent[500],
              }
-          }}> {addLoadding ===true ? "Add..":"Add"}</Button>
+          }}> {addLoadding ===true ? "Loading ...":"Add"}</Button>
           <Button  onClick={handleClose}  sx={{
              cursor:"pointer",
              color:"white",
