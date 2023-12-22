@@ -8,18 +8,18 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import styled from "@emotion/styled";
 import toast from "react-hot-toast";
 import Header from "../../components/Header";
 import {  useDispatch, useSelector } from "react-redux";
 import Loader from "../../components/Loader";
 import { addObjectOfObject, getObjects } from "../../redux/objectSlice";
 import { addFieldObject, addFieldToObj, getAllFields } from "../../redux/fields/FieldSlice";
+import { Link } from "react-router-dom";
 
 const AllObjectsRecords = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const {isLoadding,objects,isError,isSuccess,addLoadding,objData,message,successMessage,errorMessage}=useSelector((state)=>state.objects);
+    const {isLoadding,objects,isError,isSuccess,addLoadding,objData,successMessage,errorMessage}=useSelector((state)=>state.objects);
   
     const {isFieldError,isFieldSuccess,addFieldLoadding,fieldSuccessMessage,fieldErrorMessage,fieldData,fields,addfieldToObject}=useSelector((state)=>state.fields);
 
@@ -87,8 +87,6 @@ const AllObjectsRecords = () => {
      dispatch(getObjects());
     }
  },[isError,isSuccess,objData]);
-  
-   // console.log(createdBy + "  "+ objectTypeName + " " + objectName + " " + maxFields);
    console.log("objectId ...",objectId);
     const handleClickOpen = () => {
       setOpen(true);
@@ -130,11 +128,11 @@ const AllObjectsRecords = () => {
       },
       { field: "objectTitle", headerName: "Title", width: 100 },
       { field: "objectDescription", headerName: "Description", width: 200 },
-      { field: "createdBy", headerName: "CreatedBy", width: 100 },
+      { field: "createdBy", headerName: "CreatedBy", width: 200 },
       {
         field: 'action',
         headerName: 'Action',
-        width: 180,
+        width: 380,
         sortable: false,
         disableClickEventBubbling: true,
      
@@ -148,8 +146,18 @@ const AllObjectsRecords = () => {
             return (
               <Stack direction="row" spacing={2}>
                 <Button variant="outlined" color="warning" size="small" onClick={onClick}>Add Field To Object</Button>
-                {/* <Button variant="outlined" color="error" size="small" onClick={onClick}>Delete</Button> */}
-              </Stack>
+                <Box  sx={{
+                  padding:"5px",
+                  border:"1px solid green",
+                  backgroundColor:"transparent",
+                  borderRadius:"5px",
+                }}>
+                <Link  style={{
+                    textDecoration: "none",
+                    color:"green"
+                }}  to={`/instance/${params.row.objectId}`}>Instances</Link>
+                </Box>
+                 </Stack>
             );
         },
       }
@@ -171,7 +179,19 @@ const AllObjectsRecords = () => {
     }
       
   
-  
+    if(objectName===null){
+      return toast.error("Object Name Field is Required ....");
+  }
+  if( maxFields===null){
+      return toast.error("Max Field filds  is Required ....");
+  }
+  if(objectType.objectName===null){
+    return toast.error("Object Type Field is Required ....");
+  }
+  if( createdBy===null){
+    return toast.error("Created By Field  is Required ....");
+  }
+    
      await dispatch(addObjectOfObject({
        "ObjectName":objectName,
        "ObjectType":objectTypeName,
@@ -191,6 +211,12 @@ const AllObjectsRecords = () => {
     if(addedBy===""){
         return toast.error("added filds  is Required ....");
     }
+    if(fieldName===null){
+      return toast.error("Field Name Field is Required ....");
+  }
+  if(addedBy===null){
+      return toast.error("added filds  is Required ....");
+   }
      await dispatch(addFieldObject({
        "FieldName":fieldName,
        "AddedBy":addedBy
@@ -200,7 +226,10 @@ const AllObjectsRecords = () => {
   }
   const addObjectHandler2= async(e)=>{
     console.log("hitt ...");
-    if(addField==null){
+    if(addField===""){
+      return toast.error("Field Name  is Required ....");
+  }
+    if(addField===null){
         return toast.error("Field Name  is Required ....");
     }
      await dispatch(addFieldToObj({
@@ -294,7 +323,6 @@ const AllObjectsRecords = () => {
            objectId:a.objectId,
            fieldName:a.fieldName,
          }
-         
        }).filter(a => a!=="")  || []}
         sx={{ width: 250,color:"black",marginRight:"20px" }}
         renderInput={(params) => <TextField {...params} label="Fields"    />}
@@ -546,7 +574,7 @@ const AllObjectsRecords = () => {
               backgroundColor:colors.greenAccent[500],
             }
   
-          }} variant="solid" size="small"  >Add Object</Button>
+          }} variant="solid" size="small">Add Object</Button>
         <Button onClick={handleClickOpen1} style={{
             textDecoration:"none",
             cursor:"pointer",
@@ -567,7 +595,7 @@ const AllObjectsRecords = () => {
            <DataGrid getRowId={(row) => row.objectId} paginationModel={{
             pageSize: 5,
             page: 0,
-          }} pageSizeOptions={[5, 10, 25]} rows={objects &&  objects.length>0 && objects.filter && objects?.filter((a)=>(a.objectName!=="Root" && a.objectName!=="Field" && a.objectName!=="User")) || []} columns={columns} />
+          }} pageSizeOptions={[5, 10, 25]} rows={objects &&  objects.length>0 && objects.filter && objects?.filter((a)=>(a.objectTypeId!=="1" && a.objectTypeId!=="2")) || []} columns={columns} />
               </Box>
       </Box>
       </>

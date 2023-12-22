@@ -17,8 +17,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {  getObjects } from "./redux/objectSlice.js";
 import {  getAllObjectTypes } from "./redux/Type/typeSlice.js";
 import AllObjectsRecords from "./pages/records/index.js";
-import { useProSidebar } from "react-pro-sidebar";
 import AddObjectsType from "./pages/objectsTypes/addObjectType.js";
+import Instances from "./pages/instances/index.js";
 
 
 
@@ -45,6 +45,7 @@ const App = () => {
                 <Route path="/records" element={<AllObjectsRecords />} />
                 <Route path="/objectIntances" element={<ObjectInstance />} />
                 <Route path="/add-object-type" element={<AddObjectsType />} />
+                <Route path="/instance/:id" element={<Instances />} />
                 <Route path="/form" element={<Form />} /> 
               </Routes>
               <Toaster/>
