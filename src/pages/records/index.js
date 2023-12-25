@@ -12,14 +12,15 @@ import toast from "react-hot-toast";
 import Header from "../../components/Header";
 import {  useDispatch, useSelector } from "react-redux";
 import Loader from "../../components/Loader";
-import { addObjectOfObject, getObjects } from "../../redux/objectSlice";
+import { addObjectOfObject, getObjectWithPaginations, getObjects } from "../../redux/objectSlice";
 import { addFieldObject, addFieldToObj, getAllFields } from "../../redux/fields/FieldSlice";
 import { Link } from "react-router-dom";
+import { getAllObjectTypes } from "../../redux/Type/typeSlice";
 
 const AllObjectsRecords = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const {isLoadding,objects,isError,isSuccess,addLoadding,objData,successMessage,errorMessage}=useSelector((state)=>state.objects);
+    const {isLoadding,objects,isError,isSuccess,addLoadding,objData,successMessage,errorMessage,objectsWithPagination}=useSelector((state)=>state.objects);
   
     const {isFieldError,isFieldSuccess,addFieldLoadding,fieldSuccessMessage,fieldErrorMessage,fieldData,fields,addfieldToObject}=useSelector((state)=>state.fields);
 
@@ -36,14 +37,24 @@ const AllObjectsRecords = () => {
     const [inputObjectType,setInputObjectType]=useState("");
     const [objectId,setObjectId]=useState("");
     const [inputField,setInputField]=useState("");
-    
     const [fieldName,setFieldName]=useState("");
     const [addedBy,setAddedBy]=useState("");
-
     const [addField,setAddField]=useState(null);
+    const [pageNumber,setPageNumber]=useState(0);
+    const [pageSize,setPageSize]=useState(10);
     console.log(addField);
     const dispatch=useDispatch();
 
+  useMemo(()=>{
+    dispatch(getAllObjectTypes())
+  },[]);
+    console.log(pageSize + " " + pageNumber);
+    useMemo(()=>{
+       dispatch(getObjectWithPaginations({
+        pageSize:pageSize,
+        pageNumber:pageNumber+1
+       }))
+    },[pageSize,pageNumber]);
     useMemo(()=>{
         dispatch(getAllFields());
     },[fieldData]);
@@ -118,7 +129,7 @@ const AllObjectsRecords = () => {
           setAddField("");
           setOpen2(false);
       };
-  
+
     const columns = [
       { field: "objectId", headerName: "Id",width: 100 },
       {
@@ -243,7 +254,7 @@ const AllObjectsRecords = () => {
         <>
         {
           isLoadding===true ? (
-              <Loader/>
+            <div style={{marginLeft:"400px"}}> <Loader/></div>
           ):<>
           <Box  ml="20px"  mr="20px" mb="20px">
               <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -567,7 +578,7 @@ const AllObjectsRecords = () => {
             padding:"10px",
             position:"absolute",
             right:"100px",
-            top:"-60px",
+            top:"-50px",
             fontSize:"10px",
             ":hover":{
               color:"white",
@@ -583,7 +594,7 @@ const AllObjectsRecords = () => {
             padding:"10px",
             position:"absolute",
             right:"10px",
-            top:"-60px",
+            top:"-50px",
             fontSize:"10px",
             ":hover":{
               color:"white",
@@ -592,12 +603,18 @@ const AllObjectsRecords = () => {
   
           }} variant="solid" size="small"  >Create Field</Button>
          </Box> 
-           <DataGrid getRowId={(row) => row.objectId} paginationModel={{
-            pageSize: 5,
-            page: 0,
-          }} pageSizeOptions={[5, 10, 25]} rows={objects &&  objects.length>0 && objects.filter && objects?.filter((a)=>(a.objectTypeId!=="1" && a.objectTypeId!=="2")) || []} columns={columns} />
+           <DataGrid getRowId={(row) => row.objectId} 
+            rowCount={objectsWithPagination.totalObjects}
+            pageSize={pageSize}
+            onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+            page={pageNumber}
+            onPageChange={(newPage)=>setPageNumber(newPage)}
+            rowsPerPageOptions={[5, 10, 20]}
+            isLoadding={isLoadding}
+            paginationMode="server"
+            rows={objectsWithPagination.obj || []} columns={columns} />
               </Box>
-      </Box>
+       </Box>
       </>
         }
       </>

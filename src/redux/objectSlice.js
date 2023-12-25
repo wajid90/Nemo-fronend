@@ -5,6 +5,7 @@ const initialState = {
   objectStruture:[],
   getObjectByType:[],
   searchObjects:[],
+  objectsWithPagination:[],
   objData:null,
   isError: false,
   isSuccess: false,
@@ -70,6 +71,17 @@ export const addObjectOfObject = createAsyncThunk(
     }
   }
 );
+export const getObjectWithPaginations = createAsyncThunk(
+  "objects/get-ObjectWithPagination",
+  async (data,thunkAPI) => {
+    try {
+      return await objectService.getObjects(data);
+    } catch (e) {
+      return thunkAPI.rejectWithValue(e);
+    }
+  }
+);
+
 
 export const objectSlice = createSlice({
   name: "objectSlice",
@@ -89,7 +101,21 @@ export const objectSlice = createSlice({
         state.isLoadding = false;
         state.isError = true;
         state.isSuccess = false;
-        state.objectTypes = [];
+        state.objects = [];
+        state.message = action.payload?.response?.data?.message;
+      }).addCase(getObjectWithPaginations.pending, (state) => {
+        state.isLoadding = true;
+      })
+      .addCase(getObjectWithPaginations.fulfilled, (state, action) => {
+        state.isLoadding = false;
+        state.isSuccess = true;
+        state.objectsWithPagination = action.payload;
+      })
+      .addCase(getObjectWithPaginations.rejected, (state, action) => {
+        state.isLoadding = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.objectsWithPagination = [];
         state.message = action.payload?.response?.data?.message;
       }).addCase(getObjectByType.pending, (state) => {
         state.isLoadding = true;

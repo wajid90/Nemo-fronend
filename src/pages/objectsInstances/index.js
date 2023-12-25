@@ -17,9 +17,10 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import toast from "react-hot-toast";
-import { getObjectStrutureByObjectId, searchObjectByFieldValue } from "../../redux/objectSlice";
+import { getObjectByType, getObjectStrutureByObjectId, searchObjectByFieldValue } from "../../redux/objectSlice";
 import { useProSidebar } from "react-pro-sidebar";
 import { Link } from "react-router-dom";
+import { getAllObjectTypes } from "../../redux/Type/typeSlice";
 
 
 var operator=["=","<",">","<=",">=","Like"];
@@ -29,28 +30,19 @@ var operator1=["ALL","AND","ANY","BETWEEN","EXISTS","IN","NOT","OR","SOME"];
 const ObjectInstance = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const {isLoadding:objLoadding,objects,objectStruture,searchObjects,isError}=useSelector((state)=>state.objects);
+  const {isLoadding:objLoadding,objects,objectStruture,searchObjects,isError,objectByType}=useSelector((state)=>state.objects);
   const {isLoadding:typeLoadding,objectTypes}=useSelector((state)=>state.types);
   const {isLoadding:instLoadding,ObjectInstances}=useSelector((state)=>state.instances);
   const dispatch=useDispatch();
   const [object, setObject] = React.useState("");
-  const [objt, setObjt] = React.useState({});
   const [objecttypeId,setObjectTypeId] = React.useState("");
   const [objId,setObjectId] = React.useState("");
-
-  const [objType, setobjType] = React.useState([]);
   const [obj, setobj] = React.useState([]);
-
-
   const [inputObject, setInputObject] = React.useState("");
-
   const [objectType, setObjectType] = React.useState("");
   const [inputObjectType, setInputObjectType] = React.useState("");
   const [objectTypeName, setObjectTypeName] = React.useState("");
   const [objectName, setObjectName] = React.useState("");
-
-
-
    const [Field, setField] = React.useState("");
    const [inputField, setInputField] = React.useState("");
 
@@ -77,7 +69,7 @@ const ObjectInstance = () => {
 
   const [addField,setAddField] = React.useState(false);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [open, setOpen] = React.useState(false);
   const [fullWidth, setFullWidth] = React.useState(true);
   const [maxWidth, setMaxWidth] = React.useState('md');
@@ -87,6 +79,13 @@ const ObjectInstance = () => {
   const ref1=useRef();
   const ref2=useRef();
   const ref3=useRef();
+
+  
+  useMemo(()=>{
+    dispatch(getAllObjectTypes())
+  },[]);
+
+
 
   const { collapsed } = useProSidebar();
   
@@ -99,21 +98,10 @@ const ObjectInstance = () => {
     setPage(0);
   };
 
-   useEffect(()=>{
-    let at= objects && objects.length>0 && objects.map(a => {
-      if(objecttypeId!=="" && objecttypeId){
-       if(a.objectTypeId.toString()===objecttypeId.toString()){
-         return  {
-           objectId:a.objectId,
-           objectName:a.objectName,
-         };
-       }
-      }  
-      return "";
-    }).filter(a => a!=="");
+   useMemo(()=>{
     
-   setobj(at);
-   },[objecttypeId]);
+    dispatch(getObjectByType(objectTypeName));
+   },[objectTypeName]);
 
 
 
@@ -384,7 +372,7 @@ let handlesetShow=()=>{
          setInputObject(newInputValue);
         }}
         id="controllable-states-demo"
-        options={obj || []}
+        options={objectByType || []}
         sx={{ width: 250,color: colors.blueAccent[800]}}
         renderInput={(params) => <TextField {...params} label="Objects"  />}
       />
@@ -720,9 +708,9 @@ sx={{ width: '550px' }}
         </DialogActions>
       </Dialog>
 
-      <div style={{ height: 350, width:collapsed ? "100%" :'90%' ,marginTop:"20px"}}>
+      <div style={{ height: 350, width:collapsed ? "100%" :'97%' ,marginTop:"20px"}}>
       {
-         objLoadding === true ?  <div style={{marginLeft:"400px"}}> <Loader/></div> :searchObjects && searchObjects?.length>0?  searchObjects && searchObjects?.length>0? <>
+         objLoadding === true ?  <div style={{marginLeft:"300px"}}> <Loader/></div> :searchObjects && searchObjects?.length>0?  searchObjects && searchObjects?.length>0? <>
           <Grid  spacing={3}  lg={12} mx="auto">
             <Grid item xs={12} style={{ maxWidth:"100%" ,padding:"10px",marginLeft:"5%",marginRight:"5%", marginTop:"20px",backgroundColor:colors.blueAccent[900]}}>
             <Paper sx={{ maxWidth: '100%', overflow: 'hidden' }}>
@@ -767,7 +755,7 @@ sx={{ width: '550px' }}
                 style={{
                   backgroundColor:colors.blueAccent[700]
                  }}
-                    rowsPerPageOptions={[5,10, 25, 100]}
+                    rowsPerPageOptions={[5,10,25, 100]}
                     component="div"
                     count={searchObjects?.length}
                     rowsPerPage={rowsPerPage}

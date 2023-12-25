@@ -81,6 +81,11 @@ const searchObject = async (data) => {
 
 };
 
+const getObjects = async (data) => {
+  const reponces = await axios.get(`https://localhost:7241/getObjects?pageSize=${data.pageSize}&pageNumber=${data.pageNumber}`);
+  return reponces.data;
+};
+
 const addObject = async (objectData) => {
   console.log(objectData);
   const reponces = await axios.post(`https://localhost:7241/addObject`,JSON.stringify( {
@@ -100,6 +105,7 @@ const objectService = {
     getObjectofType,
     getObjectStruture,
     searchObject,
-    addObject
+    addObject,
+    getObjects
 };
 export default objectService;

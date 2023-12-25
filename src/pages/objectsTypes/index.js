@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Box, Button, CircularProgress, useTheme } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
@@ -12,19 +12,28 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import styled from "@emotion/styled";
 import toast from "react-hot-toast";
-import { addObjectOfObjectType, getAllObjectTypes } from "../../redux/Type/typeSlice";
+import { addObjectOfObjectType, getAllObjectTypes, getObjectTypesPagination } from "../../redux/Type/typeSlice";
 
 const AllObjectsTypes = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const {isLoadding,addLoadding,objectTypes,isError,isSuccess,message,objectType:objType,successMessage,errorMessage}=useSelector((state)=>state.types);
+  const {isLoadding,addLoadding,isError,isSuccess,objectType:objType,successMessage,errorMessage,objectPaginationType}=useSelector((state)=>state.types);
   const [open, setOpen] = React.useState(false);
   const [createdBy,setCreatedBy]=useState("");
   const [objectType,setObjectType]=useState("");
-
+  const [pageNumber,setPageNumber]=useState(0);
+  const [pageSize,setPageSize]=useState(10);
   const dispatch=useDispatch();
+  console.log(pageSize + " " + pageNumber);
+  useMemo(()=>{
+     dispatch(getObjectTypesPagination({
+      pageSize:pageSize,
+      pageNumber:pageNumber+1
+     }))
+  },[pageSize,pageNumber]);
+
+
 
   console.log(createdBy + "  "+ objectType);
 
@@ -49,30 +58,9 @@ const AllObjectsTypes = () => {
     { field: "objectTypeCategory", headerName: "Object Type Category", width: 200 },
     { field: "updatedBy", headerName: "Updated By", width: 100 },
   ];
-  const CssTextField = styled(TextField)({
-    '& label.Mui-focused': {
-      color: 'white',
-    },
-    '& .MuiInput-underline:after': {
-      borderBottomColor: 'white',
-    },
-    '& .MuiInputLabel-root': {
-      color: 'white',
-    },
-    '& .MuiOutlinedInput-root': {
-      '& fieldset': {
-        borderColor: 'white',
-      },
-      '&:hover fieldset': {
-        borderColor: 'white',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: 'white',
-      },
-    },
-  });
 
-  useEffect(()=>{
+
+  useMemo(async ()=>{
      if(isError===true){
          toast.error(errorMessage)
          dispatch({
@@ -81,8 +69,8 @@ const AllObjectsTypes = () => {
      }
      if(isSuccess===true && objType!==null){
       console.log("this is hit now ...");
-      toast.success(successMessage);
-      dispatch(getAllObjectTypes());
+       toast.success(successMessage);
+       await dispatch(getAllObjectTypes());
       dispatch({
         type:"clearSuccess"
       })
@@ -95,7 +83,7 @@ const AllObjectsTypes = () => {
     if(objectType===""){
       return toast.error("Object Type Field is Required ....");
     }
-    if( createdBy===""){
+    if(createdBy===""){
       return toast.error("Created By Field  is Required ....");
     }
 
@@ -103,7 +91,7 @@ const AllObjectsTypes = () => {
         objectType: objectType,
         createdBy: createdBy
       }))
-     
+   
      await handleClose();
     
   }
@@ -111,7 +99,7 @@ const AllObjectsTypes = () => {
     <>
     {
         isLoadding===true ?(
-            <Loader/>
+          <div style={{marginLeft:"400px"}}> <Loader/></div>
         ): (<Box  ml="20px"  mr="20px" mb="20px" style={{
           
         }}>
@@ -234,7 +222,7 @@ const AllObjectsTypes = () => {
           padding:"10px",
           position:"absolute",
           right:"10px",
-          top:"-60px",
+          top:"-50px",
           fontSize:"10px",
           ":hover":{
             color:"white",
@@ -243,7 +231,16 @@ const AllObjectsTypes = () => {
 
         }} variant="solid" size="small"  >Add ObjectType</Button>
         </Box>
-              <DataGrid getRowId={(row) => row.objectTypeId} pageSizeOptions={[5, 10, 25]} paginationModel={{pageSize: 5,page: 0,}} rows={objectTypes && objectTypes?.length>0 && objectTypes.filter && objectTypes.filter((a)=>(a.objectTypeName!=="Root" && a.objectTypeName!=="Field" && a.objectTypeName!=="User"))} columns={columns} />
+              <DataGrid getRowId={(row) => row.objectTypeId} 
+               rowCount={objectPaginationType.totalObjectTypes}
+               pageSize={pageSize}
+               onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+               page={pageNumber}
+               onPageChange={(newPage)=>setPageNumber(newPage)}
+               rowsPerPageOptions={[5, 10, 20]}
+               isLoadding={isLoadding}
+               paginationMode="server"
+              rows={objectPaginationType.objType || []} columns={columns} />
             </Box>
           </Box>)
             

@@ -12,24 +12,28 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import styled from "@emotion/styled";
 import toast from "react-hot-toast";
-import { addObjectOfObjectType, getAllObjectTypes } from "../../redux/Type/typeSlice";
+import { getAllObjectTypes } from "../../redux/Type/typeSlice";
 import { getObjectInstance } from "../../redux/Instance/instanceSlice";
-import { useParams } from "react-router-dom";
+import { Router, useNavigate, useParams } from "react-router-dom";
 import { useProSidebar } from "react-pro-sidebar";
+import { ArrowBack } from "@mui/icons-material";
 
 const Instances = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const {isLoadding,addLoadding,objectTypes,isError,isSuccess,message,objectType:objType,successMessage,errorMessage}=useSelector((state)=>state.types);
+  const {isLoadding,addLoadding,objectTypes,isError,isSuccess,objectType:objType,successMessage,errorMessage}=useSelector((state)=>state.types);
   const {isLoadding:instLoadding,ObjectInstances}=useSelector((state)=>state.instances);
   const [open, setOpen] = React.useState(false);
   const [createdBy,setCreatedBy]=useState("");
   const [objectType,setObjectType]=useState("");
-  const [page, setPage] = React.useState(0);
+  const [page, setPage] = React.useState(1);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const dispatch=useDispatch(); 
   const params=useParams();
   const { collapsed } = useProSidebar();
+
+  const navigation=useNavigate();
+
 
   useEffect(()=>{
    dispatch(getObjectInstance(params?.id));
@@ -118,15 +122,25 @@ const Instances = () => {
     {
         isLoadding===true ?(
             <Loader/>
-        ): (<Box  ml="20px"  mx="20px" mb="20px" width={"100%"} style={{
+        ): (<Box  ml="20px"  mx="20px" mb="20px" maxWidth={"100%"} style={{
           
         }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Box display="flex" justifyContent="start" alignItems="center">
+                <Box onClick={()=>navigation("/records")} style={{
+                    padding:"10px",
+                    borderRadius:"50%",
+                    display:"flex",
+                    justifyContent:"center",
+                    alignItems:"center",
+                    backgroundColor:colors.blueAccent[700],
+                    marginRight:"10px",
+                    cursor:"pointer"
+                }}> <ArrowBack color="white" size={25}/></Box>
               <Header title={"Object Instances"} subtitle="Instances" />
             </Box>
             <Box
               m="8px 0 0 0"
-              height="80vh"
+              height="80vh" 
               sx={{
                 "& .MuiDataGrid-root": {
                   border: "none",
@@ -240,7 +254,7 @@ const Instances = () => {
           padding:"10px",
           position:"absolute",
           right: collapsed ? "30px" :'200px',
-          top:"-60px",
+          top:"-40px",
           fontSize:"10px",
           ":hover":{
             color:"white",
@@ -249,11 +263,11 @@ const Instances = () => {
 
         }} variant="solid" size="small"  >Create Instance</Button>
         </Box>
-        <div style={{ height: 350, width:collapsed ? "100%" :'90%' ,marginTop:"20px" }}>
+        <div style={{ height: 350, width:collapsed ? "100%" :'98%' ,marginTop:"20px" }}>
       {
          instLoadding === true ?  <div style={{marginLeft:"400px"}}> <Loader/></div> :  ObjectInstances && ObjectInstances.length>0? <>
           <Grid   spacing={3}>
-            <Grid item xs={12} className="w-[80%]" style={{mx:"auto", maxWidth:collapsed ? "96%" :'93%' ,padding:"10px",marginTop:"20px",backgroundColor:colors.blueAccent[900]}}>
+            <Grid item xs={12} className="w-[90%]" style={{mx:"auto", maxWidth:collapsed ? "96%" :'93%' ,padding:"10px",marginTop:"20px",backgroundColor:colors.blueAccent[900]}}>
             <Paper sx={{ width: '100%', overflow: 'hidden' }}>
              <TableContainer sx={{ maxHeight: 440 }}>
                <Table stickyHeader aria-label="sticky table" >
@@ -329,7 +343,7 @@ const Instances = () => {
               </Paper>
             </Grid>
           </Grid>
-          <Alert severity={"success"} style={{
+        <Alert severity={"success"} style={{
          mx:"auto", maxWidth:collapsed ? "96%" :'93%'
         }}>object {ObjectInstances?.length} Instances Found ...</Alert>
         </>:<Alert severity={Array.isArray(ObjectInstances) && ObjectInstances.length>0 ? "success":"error"} style={{

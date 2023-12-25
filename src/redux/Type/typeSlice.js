@@ -3,6 +3,7 @@ import typeAction from "./typeAction";
 const initialState = {
   objectTypes: [],
   objectByType:[],
+  objectPaginationType:[],
   objectType:null,
   isError: false,
   isSuccess: false,
@@ -26,6 +27,16 @@ export const getAllObjectTypes = createAsyncThunk(
       }
     }
   );
+  export const getObjectTypesPagination = createAsyncThunk(
+    "objects/all-objectsPaginationType",
+    async (data,thunkAPI) => {
+      try {
+        return await typeAction.getAllPaginationType(data);
+      } catch (e) {
+        return thunkAPI.rejectWithValue(e);
+      }
+    }
+  );
   
   export const addObjectOfObjectType = createAsyncThunk(
     "objects/add-ObjectType",
@@ -44,31 +55,38 @@ export const typeSlice = createSlice({
     initialState,
     reducers: {},
     extraReducers: (builder) => {
-      builder
-        .addCase(getAllObjectTypes.pending, (state) => {
+      builder.addCase(getAllObjectTypes.pending, (state) => {
           state.isLoadding = true;
-        })
-        .addCase(getAllObjectTypes.fulfilled, (state, action) => {
+        }).addCase(getAllObjectTypes.fulfilled, (state, action) => {
           state.isLoadding = false;
           state.isSuccess = true;
           state.objectTypes = action.payload;
-        })
-        .addCase(getAllObjectTypes.rejected, (state, action) => {
+        }).addCase(getAllObjectTypes.rejected, (state, action) => {
           state.isLoadding = false;
           state.isError = true;
           state.isSuccess = false;
           state.objectTypes = [];
           state.message = action.payload?.response?.data?.message;
+        }).addCase(getObjectTypesPagination.pending, (state) => {
+          state.isLoadding = true;
+        }).addCase(getObjectTypesPagination.fulfilled, (state, action) => {
+          state.isLoadding = false;
+          state.isSuccess = true;
+          state.objectPaginationType = action.payload;
+        }).addCase(getObjectTypesPagination.rejected, (state, action) => {
+          state.isLoadding = false;
+          state.isError = true;
+          state.isSuccess = false;
+          state.objectPaginationType = [];
+          state.message = action.payload?.response?.data?.message;
         }).addCase(addObjectOfObjectType.pending, (state) => {
           state.addLoadding = true;
-        })
-        .addCase(addObjectOfObjectType.fulfilled, (state, action) => {
+        }).addCase(addObjectOfObjectType.fulfilled, (state, action) => {
           state.addLoadding = false;
           state.isSuccess = true;
           state.objectType=action.payload;
           state.successMessage = action.payload.message;
-        })
-        .addCase(addObjectOfObjectType.rejected, (state, action) => {
+        }).addCase(addObjectOfObjectType.rejected, (state, action) => {
           state.addLoadding = false;
           state.isError = true;
           state.isSuccess = false;

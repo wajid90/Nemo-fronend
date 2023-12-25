@@ -16,13 +16,13 @@ const Header = ({ title, subtitle }) => {
         {title}
       </Typography>
      
-      <Typography
+      {/* <Typography
         variant="h6"
         color={colors.blueAccent[800]}
         fontWeight="bold"
       >
         {subtitle}
-      </Typography>
+      </Typography> */}
     </Box>
   );
 };

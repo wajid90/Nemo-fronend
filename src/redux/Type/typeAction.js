@@ -7,6 +7,12 @@ const getAllObjectsType = async () => {
   return reponces.data;
 };
 
+const getAllPaginationType = async (data) => {
+  const reponces = await axios.get(`https://localhost:7241/getAllTypes?pageSize=${data.pageSize}&pageNumber=${data.pageNumber}`);
+
+  return reponces.data;
+};
+
 const getObjectofType = async (objectType) => {
     console.log(objectType);
     const reponces = await axios.get(`https://localhost:7241/getObjectsofType?typeName=${objectType}`);
@@ -26,7 +32,7 @@ const getObjectofType = async (objectType) => {
   const typeService = {
     getAllObjectsType,
     getObjectofType,
-    addObjectType
-
+    addObjectType,
+    getAllPaginationType
 };
 export default typeService;
