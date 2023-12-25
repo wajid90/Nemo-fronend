@@ -14,6 +14,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import toast from "react-hot-toast";
 import { addObjectOfObjectType, getAllObjectTypes, getObjectTypesPagination } from "../../redux/Type/typeSlice";
+import { useLocation } from "react-router-dom";
 
 const AllObjectsTypes = () => {
   const theme = useTheme();
@@ -25,14 +26,18 @@ const AllObjectsTypes = () => {
   const [pageNumber,setPageNumber]=useState(0);
   const [pageSize,setPageSize]=useState(10);
   const dispatch=useDispatch();
-  console.log(pageSize + " " + pageNumber);
+ const location=useLocation();
+ 
+
   useMemo(()=>{
      dispatch(getObjectTypesPagination({
       pageSize:pageSize,
-      pageNumber:pageNumber+1
+      pageNumber:pageNumber+1,
+      search:location.search
      }))
-  },[pageSize,pageNumber]);
+  },[pageSize,pageNumber,location.search]);
 
+  console.log("objectTypes :=="+ location.search);
 
 
   console.log(createdBy + "  "+ objectType);

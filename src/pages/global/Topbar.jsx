@@ -10,11 +10,23 @@ import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import { useProSidebar } from "react-pro-sidebar";
-const Topbar = () => {
+import { useLocation } from "react-router-dom";
+const Topbar = ({search,setSearch,search1,setSearch1}) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
   const { toggleSidebar, broken, rtl ,collapsed} = useProSidebar();
+  const location=useLocation();
+
+  const handleChange=(e)=>{
+    if(location.pathname==="/records"){
+      setSearch(e.target.value);
+    }else if(location.pathname==="/objectsTypes"){
+      setSearch1(e.target.value);
+    }
+   
+    //console.log(e.target.value);
+  }
 
   return (
     <Box display="flex" justifyContent="space-between" p={2} style={{
@@ -35,10 +47,22 @@ const Topbar = () => {
           p={0.2}
           borderRadius={1}
         >
-          <InputBase sx={{ ml: 1, flex: 1 }} placeholder="Search" />
-          <IconButton type="button">
+          {
+            location.pathname==="/records" &&<> <InputBase sx={{ ml: 1, flex: 1 }} placeholder="Search" name={"search"} value={search} onChange={(e)=>handleChange(e)}/> <IconButton type="button">
             <SearchIcon />
-          </IconButton>
+          </IconButton></>
+          }
+          {
+            location.pathname==="/objectsTypes" && <><InputBase sx={{ ml: 1, flex: 1 }} placeholder="Search" name={"search1"} value={search1} onChange={(e)=>handleChange(e)}/> <IconButton type="button">
+            <SearchIcon />
+          </IconButton></>
+          }
+          {
+             location.pathname==="/objectIntances" && <><InputBase sx={{ ml: 1, flex: 1 }} placeholder="Search"/> <IconButton type="button">
+             <SearchIcon />
+           </IconButton></>
+          }
+          
         </Box>
       </Box>
       <Box display="flex">

@@ -8,7 +8,7 @@ const getAllObjectsType = async () => {
 };
 
 const getAllPaginationType = async (data) => {
-  const reponces = await axios.get(`https://localhost:7241/getAllTypes?pageSize=${data.pageSize}&pageNumber=${data.pageNumber}`);
+  const reponces = await axios.get(`https://localhost:7241/getAllTypes?pageSize=${data.pageSize}&pageNumber=${data.pageNumber}&search=${data.search}`);
 
   return reponces.data;
 };

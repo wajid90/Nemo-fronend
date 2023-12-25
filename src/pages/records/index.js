@@ -14,7 +14,7 @@ import {  useDispatch, useSelector } from "react-redux";
 import Loader from "../../components/Loader";
 import { addObjectOfObject, getObjectWithPaginations, getObjects } from "../../redux/objectSlice";
 import { addFieldObject, addFieldToObj, getAllFields } from "../../redux/fields/FieldSlice";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams, useRoutes } from "react-router-dom";
 import { getAllObjectTypes } from "../../redux/Type/typeSlice";
 
 const AllObjectsRecords = () => {
@@ -25,6 +25,8 @@ const AllObjectsRecords = () => {
     const {isFieldError,isFieldSuccess,addFieldLoadding,fieldSuccessMessage,fieldErrorMessage,fieldData,fields,addfieldToObject}=useSelector((state)=>state.fields);
 
     const {objectTypes}=useSelector((state)=>state.types);
+    let location = useLocation();
+
 
     const [open, setOpen] = React.useState(false);
     const [open1, setOpen1] = React.useState(false);
@@ -52,9 +54,10 @@ const AllObjectsRecords = () => {
     useMemo(()=>{
        dispatch(getObjectWithPaginations({
         pageSize:pageSize,
-        pageNumber:pageNumber+1
+        pageNumber:pageNumber+1,
+        search:location.search
        }))
-    },[pageSize,pageNumber]);
+    },[pageSize,pageNumber,location.search]);
     useMemo(()=>{
         dispatch(getAllFields());
     },[fieldData]);

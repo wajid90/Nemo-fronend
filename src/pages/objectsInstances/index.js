@@ -74,6 +74,7 @@ const ObjectInstance = () => {
   const [fullWidth, setFullWidth] = React.useState(true);
   const [maxWidth, setMaxWidth] = React.useState('md');
   const [formValues, setFormValues] = useState([{newConj:"", newFieldName: "",newFieldOperator:"", newFieldValue : ""}]);
+
   
   const ref0=useRef();
   const ref1=useRef();
@@ -247,7 +248,7 @@ let handlesetShow=()=>{
     <>
     {(<Box  ml="10px"  mr="10px" mb="20px" width={"100%"}>
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title={objectName!==""?objectName :"Data Table"} subtitle={objectTypeName!==""? objectTypeName: "Data Description"} />
+        <Header title={objectName!==""?objectName :"Data Table"} subtitle={objectTypeName!==""? objectTypeName: "Data Description"}  />
       </Box>
       <Box
         m="8px 0 0 0"
