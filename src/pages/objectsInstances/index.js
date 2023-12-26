@@ -773,7 +773,10 @@ sx={{ width: '550px' }}
         }}>object {Array.isArray(searchObjects)? searchObjects?.length :"0"} Records Found ...</Alert></>: <Alert severity={searchObjects?.length===0   && isError===true ? "error" :"success"} style={{
           width:"90%",
           marginLeft:"5%",marginRight:"5%",
-        }}> object {Array.isArray(searchObjects)? searchObjects?.length :"0"} Records Found ...</Alert>:<Alert severity={ (searchObjects?.length===0  && isError===true) ? "error" :"info"}>{ (searchObjects?.length===0  && isError===true) ? "Data not found ..." :"Please Select All fiels"} </Alert> 
+        }}> object {Array.isArray(searchObjects)? searchObjects?.length :"0"} Records Found ...</Alert>:<Alert severity={ (searchObjects?.length===0  && isError===true) ? "error" :"info"}  style={{
+          marginLeft:"5%",marginRight:"5%",
+        width:"90%"
+      }}>{ (searchObjects?.length===0  && isError===true) ? "Data not found ..." :"Please Select All fiels"} </Alert> 
       } 
      
         </div>

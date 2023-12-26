@@ -13,7 +13,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import styled from "@emotion/styled";
 import toast from "react-hot-toast";
 import { getAllObjectTypes } from "../../redux/Type/typeSlice";
-import { getObjectInstance } from "../../redux/Instance/instanceSlice";
+import { getInstance, getObjectInstance } from "../../redux/Instance/instanceSlice";
 import { Router, useNavigate, useParams } from "react-router-dom";
 import { useProSidebar } from "react-pro-sidebar";
 import { ArrowBack } from "@mui/icons-material";
@@ -22,12 +22,14 @@ const Instances = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const {isLoadding,addLoadding,objectTypes,isError,isSuccess,objectType:objType,successMessage,errorMessage}=useSelector((state)=>state.types);
-  const {isLoadding:instLoadding,ObjectInstances}=useSelector((state)=>state.instances);
+  const {isLoadding:instLoadding,ObjectInstances,Instances}=useSelector((state)=>state.instances);
   const [open, setOpen] = React.useState(false);
   const [createdBy,setCreatedBy]=useState("");
   const [objectType,setObjectType]=useState("");
-  const [page, setPage] = React.useState(1);
+  const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [pageNumber,setPageNumber]=useState(0);
+
   const dispatch=useDispatch(); 
   const params=useParams();
   const { collapsed } = useProSidebar();
@@ -36,8 +38,12 @@ const Instances = () => {
 
 
   useEffect(()=>{
-   dispatch(getObjectInstance(params?.id));
-  },[params?.id]);
+   dispatch(getInstance({
+    objectId:(params?.id),
+    pageSize:rowsPerPage,
+    page:page,
+   }));
+  },[params?.id,page,rowsPerPage]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -334,7 +340,7 @@ const Instances = () => {
                  }}
                     rowsPerPageOptions={[5,10, 25, 100]}
                     component="div"
-                    count={ObjectInstances?.length}
+                    count={Instances && Instances.totalPages}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}

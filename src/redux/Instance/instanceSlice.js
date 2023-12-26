@@ -4,6 +4,7 @@ import instanceAction from "./instanceAction";
 const initialState = {
   ObjectInstances:[],
   objectInstance:[],
+  Instances:[],
   isError: false,
   isSuccess: false,
   isLoadding: false,
@@ -25,6 +26,17 @@ export const getObjectInstance = createAsyncThunk(
       }
     }
   );
+  export const getInstance = createAsyncThunk(
+    "objects/obInstances",
+    async (data,thunkAPI) => {
+      try {
+        return await instanceAction.getObjInstances(data);
+      } catch (e) {
+        return thunkAPI.rejectWithValue(e);
+      }
+    }
+  );
+  
   export const getInstanceByObjectName = createAsyncThunk(
     "objects/get-instance",
     async (objectName,thunkAPI) => {
@@ -56,6 +68,22 @@ export const instanceSlice = createSlice({
           state.isError = true;
           state.isSuccess = false;
           state.ObjectInstances = [];
+          state.message = action.payload?.response?.data?.message;
+        }).addCase(getInstance.pending, (state) => {
+          state.isLoadding = true;
+        })
+        .addCase(getInstance.fulfilled, (state, action) => {
+          state.isLoadding = false;
+          state.isSuccess = true;
+          state.Instances = action.payload.result.requests;
+          state.ObjectInstances=JSON.parse(action.payload.result.requests.productPerPage)
+        })
+        .addCase(getInstance.rejected, (state, action) => {
+          state.isLoadding = false;
+          state.isError = true;
+          state.isSuccess = false;
+          state.Instances = [];
+          state.ObjectInstances=[];
           state.message = action.payload?.response?.data?.message;
         }).addCase(getInstanceByObjectName.pending, (state) => {
           state.isLoadding = true;
