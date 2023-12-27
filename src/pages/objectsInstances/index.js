@@ -32,7 +32,7 @@ const ObjectInstance = () => {
   const colors = tokens(theme.palette.mode);
   const {isLoadding:objLoadding,objects,objectStruture,searchObjects,isError,objectByType}=useSelector((state)=>state.objects);
   const {isLoadding:typeLoadding,objectTypes}=useSelector((state)=>state.types);
-  const {isLoadding:instLoadding,ObjectInstances}=useSelector((state)=>state.instances);
+  const {isLoadding:instLoadding,ObjectInstances,isSuccess}=useSelector((state)=>state.instances);
   const dispatch=useDispatch();
   const [object, setObject] = React.useState("");
   const [objecttypeId,setObjectTypeId] = React.useState("");
@@ -710,10 +710,24 @@ sx={{ width: '550px' }}
       </Dialog>
 
       <div style={{ height: 350, width:collapsed ? "100%" :'97%' ,marginTop:"20px"}}>
+     { searchObjects.length===0 && isError===false && isSuccess===false && <Box
+        width="50%"
+        height={"100%"}
+        mx={"auto"}
+       component="img"
+       sx={{
+         height: "100%",
+         width: "50%",
+         display:"flex",
+         justifyContent: "center",
+        }}
+       alt="search Data"
+       src="/concept-house-searching-landing-page_52683-24921-removebg-preview.png"
+     />}
       {
-         objLoadding === true ?  <div style={{marginLeft:"300px"}}> <Loader/></div> :searchObjects && searchObjects?.length>0?  searchObjects && searchObjects?.length>0? <>
+         objLoadding === true ?  <div style={{marginLeft: collapsed===true ? "500px":"600px"}}> <Loader/></div> :  searchObjects && searchObjects?.length>0 ? <>
           <Grid  spacing={3}  lg={12} mx="auto">
-            <Grid item xs={12} style={{ maxWidth:"100%" ,padding:"10px",marginLeft:"5%",marginRight:"5%", marginTop:"20px",backgroundColor:colors.blueAccent[900]}}>
+            <Grid item xs={12} style={{mx:"auto", maxWidth:collapsed ? "96%" :'90%' ,padding:"10px",marginLeft:"5%",marginRight:"5%", marginTop:"20px",backgroundColor:colors.blueAccent[900]}}>
             <Paper sx={{ maxWidth: '100%', overflow: 'hidden' }}>
              <TableContainer sx={{ maxHeight: 440 }}>
                <Table stickyHeader aria-label="sticky table" >
@@ -770,13 +784,21 @@ sx={{ width: '550px' }}
           <Alert severity={searchObjects?.length===0  && isError===true ? "error" :"success"} style={{
             marginLeft:"5%",marginRight:"5%",
           width:"90%"
-        }}>object {Array.isArray(searchObjects)? searchObjects?.length :"0"} Records Found ...</Alert></>: <Alert severity={searchObjects?.length===0   && isError===true ? "error" :"success"} style={{
-          width:"90%",
-          marginLeft:"5%",marginRight:"5%",
-        }}> object {Array.isArray(searchObjects)? searchObjects?.length :"0"} Records Found ...</Alert>:<Alert severity={ (searchObjects?.length===0  && isError===true) ? "error" :"info"}  style={{
-          marginLeft:"5%",marginRight:"5%",
-        width:"90%"
-      }}>{ (searchObjects?.length===0  && isError===true) ? "Data not found ..." :"Please Select All fiels"} </Alert> 
+        }}>object {Array.isArray(searchObjects)? searchObjects?.length :"0"} Records Found ...</Alert></>:<>
+        {searchObjects?.length===0 && isSuccess===true  && <Box
+        width="100%"
+        mx={"auto"}
+        component="img"
+        sx={{
+        height: "100%",
+        width: "50%",
+        display:"flex",
+        justifyContent: "center",
+        }}
+       alt="object data not found."
+      src="/no-data-concept-illustration_114360-616-removebg-preview.png"
+       />}
+        </>
       } 
      
         </div>

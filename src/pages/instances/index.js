@@ -16,13 +16,13 @@ import { getAllObjectTypes } from "../../redux/Type/typeSlice";
 import { getInstance, getObjectInstance } from "../../redux/Instance/instanceSlice";
 import { Router, useNavigate, useParams } from "react-router-dom";
 import { useProSidebar } from "react-pro-sidebar";
-import { ArrowBack } from "@mui/icons-material";
+import { ArrowBack, Image } from "@mui/icons-material";
 
 const Instances = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const {isLoadding,addLoadding,objectTypes,isError,isSuccess,objectType:objType,successMessage,errorMessage}=useSelector((state)=>state.types);
-  const {isLoadding:instLoadding,ObjectInstances,Instances}=useSelector((state)=>state.instances);
+  const {isLoadding:instLoadding,ObjectInstances,Instances,isInsSuccess}=useSelector((state)=>state.instances);
   const [open, setOpen] = React.useState(false);
   const [createdBy,setCreatedBy]=useState("");
   const [objectType,setObjectType]=useState("");
@@ -127,7 +127,7 @@ const Instances = () => {
     <>
     {
         isLoadding===true ?(
-            <Loader/>
+          <div style={{marginLeft: collapsed===true ? "600px":"600px"}}> <Loader/></div>
         ): (<Box  ml="20px"  mx="20px" mb="20px" maxWidth={"100%"} style={{
           
         }}>
@@ -259,8 +259,8 @@ const Instances = () => {
           backgroundColor:colors.greenAccent[500],
           padding:"10px",
           position:"absolute",
-          right: collapsed ? "30px" :'200px',
-          top:"-40px",
+          right: collapsed ? "30px" : (instLoadding ? "50px" : '180px'),
+          top:"-60px",
           fontSize:"10px",
           ":hover":{
             color:"white",
@@ -273,7 +273,7 @@ const Instances = () => {
       {
          instLoadding === true ?  <div style={{marginLeft:"400px"}}> <Loader/></div> :  ObjectInstances && ObjectInstances.length>0? <>
           <Grid   spacing={3}>
-            <Grid item xs={12} className="w-[90%]" style={{mx:"auto", maxWidth:collapsed ? "96%" :'93%' ,padding:"10px",marginTop:"20px",backgroundColor:colors.blueAccent[900]}}>
+            <Grid item xs={12} className="w-[90%]" style={{mx:"auto", maxWidth:collapsed ? "96%" :'90%' ,padding:"10px",marginTop:"20px",backgroundColor:colors.blueAccent[900]}}>
             <Paper sx={{ width: '100%', overflow: 'hidden' }}>
              <TableContainer sx={{ maxHeight: 440 }}>
                <Table stickyHeader aria-label="sticky table" >
@@ -350,11 +350,24 @@ const Instances = () => {
             </Grid>
           </Grid>
         <Alert severity={"success"} style={{
-         mx:"auto", maxWidth:collapsed ? "96%" :'93%'
+         mx:"auto", maxWidth:collapsed ? "96%" :'90%'
         }}>object {ObjectInstances?.length} Instances Found ...</Alert>
-        </>:<Alert severity={Array.isArray(ObjectInstances) && ObjectInstances.length>0 ? "success":"error"} style={{
-            mx:"auto", maxWidth:collapsed ? "96%" :'93%'
-        }}> {Array.isArray(ObjectInstances)? ObjectInstances?.length :"0"}  Instances Found ...</Alert>
+        </>: ObjectInstances?.length===0 && isInsSuccess===true && <Box
+        width="100%"
+        mx={"auto"}
+        // style={{
+        //   marginX:"auto"
+        // }}
+  component="img"
+  sx={{
+    height: "100%",
+    width: "50%",
+    display:"flex",
+    justifyContent: "center",
+  }}
+  alt="The house from the offer."
+  src="/no-data-concept-illustration_114360-616-removebg-preview.png"
+/>
          
       } 
      

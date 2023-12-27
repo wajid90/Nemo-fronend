@@ -5,6 +5,8 @@ const initialState = {
   ObjectInstances:[],
   objectInstance:[],
   Instances:[],
+  isInsSuccess:false,
+  isInsError:false,
   isError: false,
   isSuccess: false,
   isLoadding: false,
@@ -74,14 +76,14 @@ export const instanceSlice = createSlice({
         })
         .addCase(getInstance.fulfilled, (state, action) => {
           state.isLoadding = false;
-          state.isSuccess = true;
+          state.isInsSuccess = true;
           state.Instances = action.payload.result.requests;
-          state.ObjectInstances=JSON.parse(action.payload.result.requests.productPerPage)
+          state.ObjectInstances=action.payload.result.requests?.productPerPage!==null && action.payload.result.requests?.productPerPage!==undefined  ? JSON.parse(action.payload.result.requests?.productPerPage): []
         })
         .addCase(getInstance.rejected, (state, action) => {
           state.isLoadding = false;
-          state.isError = true;
-          state.isSuccess = false;
+          state.isInsError = true;
+          state.isInsSuccess = false;
           state.Instances = [];
           state.ObjectInstances=[];
           state.message = action.payload?.response?.data?.message;
